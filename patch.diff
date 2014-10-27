@@ -1,0 +1,20 @@
+--- /home/alexo/workspace/hedge/node_modules/ripple-lib/src/js/ripple/remote.js	2014-06-21 02:37:34.000000000 +0300
++++ remote.js	2014-10-27 08:48:40.000000000 +0200
+@@ -1159,7 +1159,7 @@
+   }
+ 
+   if (!/^(undefined|function)$/.test(typeof ledger)) {
+-    request.ledgerChoose(ledger);
++    request.ledgerSelect(ledger);
+   }
+ 
+   if (!/^(undefined|function)$/.test(typeof peer)) {
+@@ -1612,7 +1612,7 @@
+   var request = this.requestLedgerEntry('account_root');
+ 
+   request.accountRoot(account);
+-  request.ledgerChoose(ledger);
++  request.ledgerSelect(ledger);
+ 
+   request.once('success', function(message) {
+     request.emit(type, responseFilter(message));
