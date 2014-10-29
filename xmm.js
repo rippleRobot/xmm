@@ -2,12 +2,40 @@ var account = require("./account");
 
 function check(ledger, saldo, offers)
 {
+	var issue = {
+		dict: {},
+		number: 0
+	};
+	var stock = {
+		dict: {},
+		number: 0
+	};
+	var empty = {
+		dict: {},
+		number: 0
+	};
 	var unit, pair;
 
 	console.info("Ledger", ledger);
 
-	for (unit in saldo)
-		console.info("Balance", saldo[unit], unit);
+	for (unit in saldo) {
+		var balance = saldo[unit];
+		var group;
+
+		console.info("Balance", balance, unit);
+
+		if (0 < balance)
+			group = stock;
+		else if (balance < 0)
+			group = issue;
+		else
+			group = empty;
+
+		group.dict[unit] = balance;
+		++group.number;
+	}
+
+	console.info("Assets", stock.number + empty.number);
 
 	for (pair in offers) {
 		var dup;
