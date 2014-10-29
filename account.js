@@ -5,9 +5,7 @@ var fee = 15000;
 var env = process.env;
 var id = env.XMM_ID;
 var account = new events.EventEmitter();
-var saldo = {};
-var offers = {};
-var ledger;
+var ledger, saldo, offers;
 
 var options = {
 	max_fee: fee,
@@ -43,6 +41,8 @@ function setxrp(error, response)
 		console.error("Failed to get balance");
 		return start();
 	}
+
+	saldo = {};
 
 	saldo["XRP"] = response.to_number() / 1e6;
 
@@ -86,7 +86,6 @@ function setlines(error, response)
 
 function update(error, response)
 {
-	var offers = {};
 	var list, i;
 
 	function getunit(amount)
@@ -113,6 +112,8 @@ function update(error, response)
 		console.error("Failed to get offers");
 		return start();
 	}
+
+	offers = {};
 
 	list = response.offers;
 	for (i = 0; i < list.length; i++) {
