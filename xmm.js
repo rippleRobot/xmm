@@ -1,6 +1,6 @@
 var account = require("./account");
 
-function check(ledger, saldo, offers)
+function check(saldo, offers)
 {
 	var issue = {
 		dict: {},
@@ -15,8 +15,6 @@ function check(ledger, saldo, offers)
 		number: 0
 	};
 	var unit, pair;
-
-	console.info("Ledger", ledger);
 
 	for (unit in saldo) {
 		var balance = saldo[unit];

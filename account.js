@@ -5,7 +5,7 @@ var fee = 15000;
 var env = process.env;
 var id = env.XMM_ID;
 var account = new events.EventEmitter();
-var ledger, saldo, offers;
+var ledger, saldo;
 
 var options = {
 	max_fee: fee,
@@ -86,6 +86,7 @@ function setlines(error, response)
 
 function update(error, response)
 {
+	var offers = {};
 	var list, i;
 
 	function getunit(amount)
@@ -113,8 +114,6 @@ function update(error, response)
 		return start();
 	}
 
-	offers = {};
-
 	list = response.offers;
 	for (i = 0; i < list.length; i++) {
 		var offer = list[i];
@@ -132,7 +131,7 @@ function update(error, response)
 		};
 	}
 
-	account.emit("update", ledger, saldo, offers);
+	account.emit("update", saldo, offers);
 }
 
 remote.connect(start);
