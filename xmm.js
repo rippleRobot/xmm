@@ -1,6 +1,6 @@
 var account = require("./account");
 
-function check(saldo, offers)
+function check(fee, saldo, offers)
 {
 	var issue = {
 		dict: {},
@@ -16,6 +16,8 @@ function check(saldo, offers)
 	};
 	var missing = {};
 	var unit, pair, nassets;
+
+	console.info("Fee ratio", fee / saldo["XRP"]);
 
 	for (unit in saldo) {
 		var balance = saldo[unit];

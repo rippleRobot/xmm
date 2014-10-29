@@ -1,15 +1,8 @@
 var events = require("events");
 var ripple = require("ripple-lib");
 
-var fee = 15000;
-var env = process.env;
-var id = env.XMM_ID;
-var account = new events.EventEmitter();
-var ledger, saldo;
-
 var options = {
-	max_fee: fee,
-	fee_cushion: 1,
+	max_fee: 12000,
 	servers: [
 		'wss://s-east.ripple.com:443',
 		'wss://s-west.ripple.com:443'
@@ -17,6 +10,11 @@ var options = {
 	trusted: false
 };
 var remote = new ripple.Remote(options);
+var account = new events.EventEmitter();
+var fee = options.max_fee / 1e6;
+var env = process.env;
+var id = env.XMM_ID;
+var ledger, saldo;
 
 function start()
 {
@@ -131,7 +129,7 @@ function update(error, response)
 		};
 	}
 
-	account.emit("update", saldo, offers);
+	account.emit("update", fee, saldo, offers);
 }
 
 remote.connect(start);
