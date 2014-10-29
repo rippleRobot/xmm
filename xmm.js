@@ -14,7 +14,8 @@ function check(saldo, offers)
 		dict: {},
 		number: 0
 	};
-	var unit, pair;
+	var missing = {};
+	var unit, pair, nassets;
 
 	for (unit in saldo) {
 		var balance = saldo[unit];
@@ -33,7 +34,8 @@ function check(saldo, offers)
 		++group.number;
 	}
 
-	console.info("Assets", stock.number + empty.number);
+	nassets = stock.number + empty.number;
+	console.info("Number of assets", nassets);
 
 	for (pair in offers) {
 		var dup;
@@ -48,6 +50,29 @@ function check(saldo, offers)
 
 	if (!pair)
 		console.info("No offers");
+
+	if (stock.number < nassets) {
+		for (unit in stock.dict) {
+			var src = stock.dict[unit] / nassets;
+			var target;
+
+			for (target in empty.dict) {
+				missing[unit + ">" + target] = {
+					src: src,
+					dst: 0
+				};
+			}
+		}
+
+	}
+
+	for (pair in missing) {
+		var offer = missing[pair];
+		var src = offer.src;
+		var dst = offer.dst;
+
+		console.info("Create", src, dst, pair);
+	}
 
 	process.exit();
 }
