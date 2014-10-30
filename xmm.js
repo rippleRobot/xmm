@@ -15,6 +15,9 @@ function compute(fee, saldo)
  
 		console.info("Balance", saldo[base], base);
 
+		if (src < 0)
+			continue;
+
 		for (counter in saldo) {
 			var dst = saldo[counter];
 			var pair = base.concat(">", counter);
@@ -22,6 +25,9 @@ function compute(fee, saldo)
 			if (base == counter)
 				continue;
  
+			if (dst < 0)
+				continue;
+
 			offers[pair] = {
 				src: stake * src / (1 + stake),
 				dst: stake * dst / (1 - stake)
