@@ -16,17 +16,16 @@ var ledger, saldo;
 
 function start()
 {
-	remote.request_ledger_closed(getsaldo);
+	remote.once("ledger_closed", getsaldo);
 }
 
-function getsaldo(error, response)
+function getsaldo(data)
 {
-	if (error) {
+	ledger = data.ledger_index;
+	if (!ledger) {
 		console.error("Failed to get ledger");
 		return start();
 	}
-
-	ledger = response.ledger_index;
 
 	remote.request_account_balance(id, ledger, setxrp);
 }
