@@ -1,4 +1,4 @@
-function show(offers, prev)
+function choose(offers, prev, saldo)
 {
 	var pair;
 
@@ -8,16 +8,19 @@ function show(offers, prev)
 		var dst = offer.dst;
 		var old = prev[pair];
 
-		console.info("Create", src, dst, pair);
+		console.info("Computed", src, dst, pair);
 
 		if (old) {
 			src = old.src;
 			dst = old.dst;
-			console.info("Cancel", src, dst, pair);
+			console.info("Existing", src, dst, pair);
+		} else {
+			process.emit("submit", offer, pair);
+			return;
 		}
 	}
 
 	process.exit();
 }
 
-process.on("offer", show);
+process.on("offers", choose);

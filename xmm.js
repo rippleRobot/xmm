@@ -1,5 +1,6 @@
-require("./update");
 require("./offers");
+require("./submit");
+require("./update");
 
 function compute(fee, saldo, prev)
 {
@@ -37,7 +38,7 @@ function compute(fee, saldo, prev)
 		}
 	}
  
-	process.emit("offer", offers, prev);
+	process.emit("offers", offers, prev, saldo);
 }
 
 process.once("update", compute);
