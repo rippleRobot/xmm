@@ -1,35 +1,25 @@
-var account = require("./account");
+var events = require("events");
+var api = require("./api");
+
+var account = new events.EventEmitter();
 
 function check(fee, saldo)
 {
-	var issue = {
-		dict: {},
-		number: 0
-	};
-	var stock = {
-		dict: {},
-		number: 0
-	};
-	var unit, pair;
+	var unit;
 
 	console.info("Fee ratio", fee / saldo["XRP"]);
 
-	for (unit in saldo) {
-		var balance = saldo[unit];
-		var group;
-
-		console.info("Balance", balance, unit);
-
-		if (balance < 0)
-			group = issue;
-		else
-			group = stock;
-
-		group.dict[unit] = balance;
-		++group.number;
-	}
+	for (unit in saldo)
+		console.info("Balance", saldo[unit], unit);
 
 	process.exit();
 }
 
+function request()
+{
+	account.emit("request");
+}
+
 account.once("update", check);
+account.once("connected", request);
+api.connect(account);

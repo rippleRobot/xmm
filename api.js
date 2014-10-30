@@ -1,4 +1,3 @@
-var events = require("events");
 var ripple = require("ripple-lib");
 
 var options = {
@@ -10,16 +9,10 @@ var options = {
 	trusted: false
 };
 var remote = new ripple.Remote(options);
-var account = new events.EventEmitter();
 var fee = options.max_fee / 1e6;
 var env = process.env;
 var id = env.XMM_ID;
-var ledger, saldo;
-
-function start()
-{
-	remote.request_ledger_closed(getsaldo);
-}
+var account, ledger, saldo;
 
 function getsaldo(error, response)
 {
@@ -129,9 +122,25 @@ function update(error, response)
 		};
 	}
 
+	account.once("request", request);
 	account.emit("update", fee, saldo);
 }
 
-remote.connect(start);
+function request()
+{
+	remote.request_ledger_closed(getsaldo);
+}
 
-module.exports = account;
+function start()
+{
+	account.once("request", request);
+	account.emit("connected");
+}
+
+function connect(emitter)
+{
+	account = emitter;
+	remote.connect(start);
+}
+
+exports.connect = connect;
