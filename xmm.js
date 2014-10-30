@@ -10,12 +10,7 @@ function check(fee, saldo, offers)
 		dict: {},
 		number: 0
 	};
-	var empty = {
-		dict: {},
-		number: 0
-	};
-	var missing = {};
-	var unit, pair, nassets;
+	var unit, pair;
 
 	console.info("Fee ratio", fee / saldo["XRP"]);
 
@@ -25,19 +20,14 @@ function check(fee, saldo, offers)
 
 		console.info("Balance", balance, unit);
 
-		if (0 < balance)
-			group = stock;
-		else if (balance < 0)
+		if (balance < 0)
 			group = issue;
 		else
-			group = empty;
+			group = stock;
 
 		group.dict[unit] = balance;
 		++group.number;
 	}
-
-	nassets = stock.number + empty.number;
-	console.info("Number of assets", nassets);
 
 	for (pair in offers) {
 		var dup;
@@ -52,29 +42,6 @@ function check(fee, saldo, offers)
 
 	if (!pair)
 		console.info("No offers");
-
-	if (stock.number < nassets) {
-		for (unit in stock.dict) {
-			var src = stock.dict[unit] / nassets;
-			var target;
-
-			for (target in empty.dict) {
-				missing[unit + ">" + target] = {
-					src: src,
-					dst: 0
-				};
-			}
-		}
-
-	}
-
-	for (pair in missing) {
-		var offer = missing[pair];
-		var src = offer.src;
-		var dst = offer.dst;
-
-		console.info("Create", src, dst, pair);
-	}
 
 	process.exit();
 }
