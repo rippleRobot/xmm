@@ -1,6 +1,6 @@
 var account = require("./account");
 
-function check(fee, saldo, offers)
+function check(fee, saldo)
 {
 	var issue = {
 		dict: {},
@@ -28,20 +28,6 @@ function check(fee, saldo, offers)
 		group.dict[unit] = balance;
 		++group.number;
 	}
-
-	for (pair in offers) {
-		var dup;
-
-		for (dup = offers[pair]; dup; dup = dup.dup) {
-			var src = dup.src;
-			var dst = dup.dst;
-
-			console.info("Offer", src, dst, pair);
-		}
-	}
-
-	if (!pair)
-		console.info("No offers");
 
 	process.exit();
 }

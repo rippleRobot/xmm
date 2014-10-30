@@ -129,7 +129,7 @@ function update(error, response)
 		};
 	}
 
-	account.emit("update", fee, saldo, offers);
+	account.emit("update", fee, saldo);
 }
 
 remote.connect(start);
