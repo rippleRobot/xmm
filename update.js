@@ -127,7 +127,7 @@ function update(error, response)
 	}
 
 	process.once("request", start);
-	process.emit("update", fee, saldo);
+	process.emit("update", fee, saldo, offers);
 }
 
 remote.connect(start);
