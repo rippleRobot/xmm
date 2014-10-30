@@ -1,15 +1,35 @@
 require("./update");
+require("./offers");
 
-function check(fee, saldo)
+function compute(fee, saldo)
 {
-	var unit;
+	var offers = {};
+	var stake = Math.pow(fee / saldo["XRP"], 1 / 3);
+	var base;
+ 
+	console.info("Stake", stake);
 
-	console.info("Fee ratio", fee / saldo["XRP"]);
+	for (base in saldo) {
+		var src = saldo[base];
+		var counter;
+ 
+		console.info("Balance", saldo[base], base);
 
-	for (unit in saldo)
-		console.info("Balance", saldo[unit], unit);
-
-	process.exit();
+		for (counter in saldo) {
+			var dst = saldo[counter];
+			var pair = base.concat(">", counter);
+ 
+			if (base == counter)
+				continue;
+ 
+			offers[pair] = {
+				src: stake * src / (1 + stake),
+				dst: stake * dst / (1 - stake)
+			};
+		}
+	}
+ 
+	process.emit("offer", offers);
 }
 
-process.once("update", check);
+process.once("update", compute);
