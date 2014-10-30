@@ -1,7 +1,4 @@
-var events = require("events");
-var api = require("./api");
-
-var account = new events.EventEmitter();
+require("./update");
 
 function check(fee, saldo)
 {
@@ -15,11 +12,4 @@ function check(fee, saldo)
 	process.exit();
 }
 
-function request()
-{
-	account.emit("request");
-}
-
-account.once("update", check);
-account.once("connected", request);
-api.connect(account);
+process.once("update", check);

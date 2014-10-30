@@ -12,7 +12,12 @@ var remote = new ripple.Remote(options);
 var fee = options.max_fee / 1e6;
 var env = process.env;
 var id = env.XMM_ID;
-var account, ledger, saldo;
+var ledger, saldo;
+
+function start()
+{
+	remote.request_ledger_closed(getsaldo);
+}
 
 function getsaldo(error, response)
 {
@@ -122,25 +127,8 @@ function update(error, response)
 		};
 	}
 
-	account.once("request", request);
-	account.emit("update", fee, saldo);
+	process.once("request", start);
+	process.emit("update", fee, saldo);
 }
 
-function request()
-{
-	remote.request_ledger_closed(getsaldo);
-}
-
-function start()
-{
-	account.once("request", request);
-	account.emit("connected");
-}
-
-function connect(emitter)
-{
-	account = emitter;
-	remote.connect(start);
-}
-
-exports.connect = connect;
+remote.connect(start);
