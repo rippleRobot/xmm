@@ -1,17 +1,3 @@
-var ripple = require("ripple-lib");
-
-var options = {
-	max_fee: 12000,
-	servers: [
-		'wss://s-east.ripple.com:443',
-		'wss://s-west.ripple.com:443'
-	],
-	trusted: false
-};
-var remote = new ripple.Remote(options);
-var fee = options.max_fee / 1e6;
-var env = process.env;
-var id = env.XMM_ID;
 var ledger, saldo;
 
 function start()
@@ -127,52 +113,7 @@ function update(error, response)
 	}
 
 	process.once("request", start);
-	process.once("submit", create);
-	process.emit("update", fee, saldo, offers);
+	process.emit("update", saldo, offers);
 }
 
-function create(offer, pair)
-{
-	var transaction = remote.transaction();
-	var src = offer.src;
-	var dst = offer.dst;
-	var seq = offer.seq;
-	var base, counter;
-
-	function amount(value, unit)
-	{
-		var currency, issuer;
-
-		if ("XRP" == unit)
-			return Math.round(value * 1e6);
-
-		unit = unit.split(":");
-		currency = unit.shift();
-		issuer = unit.shift();
-
-		return {
-			value: value.toFixed(20),
-			currency: currency,
-			issuer: issuer
-		};
-	}
-
-	function check(error, response)
-	{
-		console.warn(arguments);
-		process.emit("request");
-	}
-
-	pair = pair.split(">");
-	base = pair.shift();
-	counter = pair.shift();
-	src = amount(src, base);
-	dst = amount(dst, counter);
-
-	transaction.offer_create(id, dst, src, false, seq);
-	transaction.set_flags("Sell");
-	transaction.submit(check);
-}
-
-remote.set_secret(id, env.XMM_KEY);
-remote.connect(start);
+process.once("request", start);

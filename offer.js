@@ -23,4 +23,4 @@ function choose(offers, prev, saldo)
 	process.exit();
 }
 
-process.on("offers", choose);
+process.on("offer", choose);

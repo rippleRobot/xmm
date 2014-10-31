@@ -1,43 +1,29 @@
-require("./offers");
-require("./update");
+var options = {
+	max_fee: 12000,
+	servers: [
+		'wss://s-east.ripple.com:443',
+		'wss://s-west.ripple.com:443'
+	],
+	trusted: false
+};
+var env = process.env;
 
-function compute(fee, saldo, prev)
+function start()
 {
-	var offers = {};
-	var stake = Math.pow(fee / saldo["XRP"], 1 / 3);
-	var base;
- 
-	console.info("Stake", stake);
-
-	for (base in saldo) {
-		var src = saldo[base];
-		var counter;
- 
-		console.info("Balance", saldo[base], base);
-
-		if (src <= 0)
-			continue;
-
-		for (counter in saldo) {
-			var dst = saldo[counter];
-			var pair = base + ">" + counter;
-			var old = prev[pair];
- 
-			if (base == counter)
-				continue;
- 
-			if (dst < 0)
-				continue;
-
-			offers[pair] = {
-				src: stake * src / (1 + stake),
-				dst: stake * dst / (1 - stake),
-				seq: old ? old.seq : undefined
-			};
-		}
-	}
- 
-	process.emit("offers", offers, prev, saldo);
+	console.info("Account", id);
+	remote.set_secret(id, key);
+	process.emit("request");
 }
 
-process.on("update", compute);
+global.ripple = require("ripple-lib");
+global.remote = new ripple.Remote(options);
+global.id = env.XMM_ID;
+global.key = env.XMM_KEY;
+global.fee = options.max_fee / 1e6;
+
+require("./compute");
+require("./offer");
+require("./submit");
+require("./update");
+
+remote.connect(start);
