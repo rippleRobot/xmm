@@ -151,7 +151,7 @@ function create(offer, pair)
 		issuer = unit.shift();
 
 		return {
-			value: value.toFixed(12),
+			value: value.toFixed(20),
 			currency: currency,
 			issuer: issuer
 		};
