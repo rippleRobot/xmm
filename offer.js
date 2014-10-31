@@ -20,7 +20,7 @@ function choose(offers, prev, saldo)
 		}
 	}
 
-	process.exit();
+	process.emit("ready");
 }
 
 process.on("offer", choose);

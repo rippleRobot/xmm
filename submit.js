@@ -29,6 +29,7 @@ function create(offer, pair)
 		if (error)
 			console.error("Failed to create offer");
 
+		process.once("submit", create);
 		process.emit("request");
 	}
 

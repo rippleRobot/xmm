@@ -18,9 +18,11 @@ function start()
 global.ripple = require("ripple-lib");
 global.remote = new ripple.Remote(options);
 global.id = env.XMM_ID;
+global.account = remote.account(id);
 global.fee = options.max_fee / 1e6;
 
 require("./compute");
+require("./listen");
 require("./offer");
 require("./submit");
 require("./update");
