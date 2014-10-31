@@ -23,7 +23,7 @@ function compute(saldo, prev)
 			if (base == counter)
 				continue;
  
-			if (dst < 0)
+			if (dst <= 0)
 				continue;
 
 			offers[pair] = {
