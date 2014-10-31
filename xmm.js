@@ -11,14 +11,13 @@ var env = process.env;
 function start()
 {
 	console.info("Account", id);
-	remote.set_secret(id, key);
+	remote.set_secret(id, env.XMM_KEY);
 	process.emit("request");
 }
 
 global.ripple = require("ripple-lib");
 global.remote = new ripple.Remote(options);
 global.id = env.XMM_ID;
-global.key = env.XMM_KEY;
 global.fee = options.max_fee / 1e6;
 
 require("./compute");
