@@ -1,13 +1,10 @@
-RIPPLE_SRC = node_modules/ripple-lib/src/js/ripple/remote.js
-RIPPLE_FIX = $(RIPPLE_SRC).fix
+RIPPLE_LIB = node_modules/ripple-lib/package.json
 
-all: xmm.js $(RIPPLE_FIX)
+all: xmm.js $(RIPPLE_LIB)
 	node xmm.js
 
-$(RIPPLE_FIX):
-	npm install ripple-lib@0.7.37
-	patch $(RIPPLE_SRC) patch.diff
-	touch $@
+$(RIPPLE_LIB):
+	npm install ripple-lib
 
 clean:
 	-rm -fr node_modules

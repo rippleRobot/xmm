@@ -27,7 +27,7 @@ function setxrp(error, response)
 
 	saldo["XRP"] = response.to_number() / 1e6;
 
-	remote.request_account_lines(id, 0, ledger, setlines);
+	remote.request_account_lines(id, ledger, setlines);
 }
 
 function setlines(error, response)
@@ -62,7 +62,7 @@ function setlines(error, response)
 		}
 	}
 
-	remote.request_account_offers(id, 0, ledger, update);
+	remote.request_account_offers(id, ledger, update);
 }
 
 function update(error, response)

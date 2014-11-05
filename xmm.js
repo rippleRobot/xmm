@@ -1,5 +1,6 @@
 var options = {
-	max_fee: 12000,
+	max_fee: 10000,
+	fee_cushion: 1,
 	servers: [
 		'wss://s-east.ripple.com:443',
 		'wss://s-west.ripple.com:443'
