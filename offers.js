@@ -97,7 +97,7 @@ function compute(saldo, prev, reserve)
 		offers[pair] = offer;
 	}
 
-	process.emit("offer", offers, prev, saldo);
+	process.emit("offers", offers, prev, saldo);
 }
 
 process.on("update", compute);

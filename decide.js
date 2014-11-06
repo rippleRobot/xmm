@@ -79,4 +79,4 @@ function decide(offers, prev, saldo)
 		process.emit("ready");
 }
 
-process.on("offer", decide);
+process.on("offers", decide);
