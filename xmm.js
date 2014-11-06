@@ -35,7 +35,6 @@ global.remote = new ripple.Remote(options);
 global.id = env.XMM_ID;
 global.account = remote.account(id);
 global.fee = options.max_fee / 1e6;
-global.reserve = 50;
 
 require("./compute");
 require("./listen");

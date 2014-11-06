@@ -52,20 +52,23 @@ function getpairs(saldo)
 	return list;
 }
 
-function compute(saldo, prev)
+function compute(saldo, prev, reserve)
 {
 	var offers = {};
 	var pairs = getpairs(saldo);
 	var npairs = pairs.length;
 	var stake = Math.sqrt(3 * npairs * fee / saldo["XRP"]);
 	var nassets = 0;
-	var unit, i;
+	var unit, i, nitems, spare;
  
 	console.info("Stake", stake);
 
 	for (unit in saldo)
 		if (0 < saldo[unit])
 			++nassets;
+
+	nitems = nassets + npairs;
+	spare = (reserve.base + nitems * reserve.inc) / nassets;
 
 	for (i = 0; i < npairs; i++) {
 		var offer = {};
@@ -81,8 +84,6 @@ function compute(saldo, prev)
 			offer.src = -stake * src / nassets;
 			offer.dst = stake * dst;
 		} else if (dst < 0) {
-			var spare = reserve / nassets;
-
 			offer.src = stake * (src - spare);
 			offer.dst = -stake * dst / nassets;
 		} else {

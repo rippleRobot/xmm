@@ -1,4 +1,4 @@
-var ledger, saldo;
+var ledger, saldo, reserve;
 
 function start()
 {
@@ -12,6 +12,11 @@ function getsaldo(data)
 		console.error("Failed to get ledger");
 		return start();
 	}
+
+	reserve = {
+		base: data.reserve_base / 1e6,
+		inc: data.reserve_inc / 1e6
+	};
 
 	remote.request_account_balance(id, ledger, setxrp);
 }
@@ -115,7 +120,7 @@ function update(error, response)
 	}
 
 	process.once("request", start);
-	process.emit("update", saldo, offers);
+	process.emit("update", saldo, offers, reserve);
 }
 
 process.once("request", start);
