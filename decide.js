@@ -3,6 +3,25 @@ function choose(offers, prev, saldo)
 	var pending = {};
 	var pair;
 
+	function spread(offer, pair)
+	{
+		var src, dst, base, counter, p0, p1;
+
+		if (!offer)
+			return 0;
+
+		src = offer.src;
+		dst = offer.dst;
+		pair = pair.split(">");
+		base = pair.shift();
+		base = saldo[base];
+		counter = pair.shift();
+		counter = saldo[counter];
+		p0 = base / counter;
+		p1 = src / dst;
+		return Math.abs(p1 - p0) / p0;
+	}
+
 	function profit(offer, pair, reset)
 	{
 		var src, dst, base, counter, v0, v1;
@@ -32,10 +51,28 @@ function choose(offers, prev, saldo)
 
 	function worth(offer, old, pair)
 	{
+		s0 = spread(old, pair);
+		s1 = spread(offer, pair);
 		p0 = profit(old, pair, false);
 		p1 = profit(offer, pair, true);
 
-		return (p0 < p1);
+		debug({
+			spread: {
+				prev: s0,
+				next: s1
+			},
+			profit: {
+				prev: p0,
+				next: p1
+			}
+		});
+
+		if (Math.sqrt(2) < s0 / s1)
+			return true;
+		else if (p0 < p1)
+			return true;
+		else
+			return false;
 	}
 
 	function obsolete(offer, pair)
