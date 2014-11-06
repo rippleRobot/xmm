@@ -56,17 +56,6 @@ function choose(offers, prev, saldo)
 		p0 = profit(old, pair, false);
 		p1 = profit(offer, pair, true);
 
-		debug({
-			spread: {
-				prev: s0,
-				next: s1
-			},
-			profit: {
-				prev: p0,
-				next: p1
-			}
-		});
-
 		if (Math.sqrt(2) < s0 / s1)
 			return true;
 		else if (p0 < p1)
@@ -75,9 +64,30 @@ function choose(offers, prev, saldo)
 			return false;
 	}
 
-	function obsolete(offer, pair)
+	function obsolete(offer, prev, pair)
 	{
-		return !offer;
+		var src, dst, stake, base, counter, p0, p1;
+
+		if (!prev)
+			return true;
+
+		src = offer.src;
+		dst = offer.dst;
+		p0 = src / dst;
+		p1 = prev.src / prev.dst;
+
+		pair = pair.split(">");
+		base = pair.shift();
+		base = saldo[base];
+		counter = pair.shift();
+		counter = saldo[counter];
+
+		if (0 < base)
+			stake = src / base;
+		else
+			stake = dst / counter;
+
+		return stake < Math.abs(p1 - p0) / p0;
 	}
 
 	for (pair in offers) {
@@ -96,19 +106,13 @@ function choose(offers, prev, saldo)
 	}
 
 	for (pair in pending)
-		if (obsolete(prev[pair], pair))
+		if (obsolete(pending[pair], prev[pair], pair))
 			return pair;
 }
 
 function decide(offers, prev, saldo)
 {
 	var pair = choose(offers, prev, saldo);
-
-	debug({
-		existing: prev,
-		computed: offers,
-		selected: pair
-	});
 
 	if (pair)
 		process.emit("submit", offers[pair], pair);

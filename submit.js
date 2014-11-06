@@ -33,6 +33,8 @@ function create(offer, pair)
 		process.emit("request");
 	}
 
+	console.info("Create", pair, src, dst, seq);
+
 	pair = pair.split(">");
 	base = pair.shift();
 	counter = pair.shift();
