@@ -1,39 +1,101 @@
-function compute(saldo, prev)
+function ispair(src, dst)
 {
-	var offers = {};
-	var stake = Math.pow(fee / saldo["XRP"], 1 / 3);
-	var base;
+	if (src.unit == dst.unit)
+		return false;
  
-	console.info("Stake", stake);
+	if ("XRP" == src.currency)
+		return true;
+	if ("XRP" == dst.currency)
+		return true;
 
+	if (id == src.issuer)
+		return false;
+	if (id == dst.issuer)
+		return false;
+
+	if (src.currency == dst.currency)
+		return true;
+	if (src.issuer == dst.issuer)
+		return true;
+ 
+	return false;
+}
+ 
+function getpairs(saldo)
+{
+	var list = [];
+	var base, unit;
+ 
 	for (base in saldo) {
-		var src = saldo[base];
+		var src = {};
 		var counter;
  
-		console.info("Balance", saldo[base], base);
-
-		if (src <= 0)
-			continue;
-
+		unit = base.split(":");
+		src.currency = unit.shift();
+		src.issuer = unit.shift();
+		src.unit = base;
+ 
 		for (counter in saldo) {
-			var dst = saldo[counter];
-			var pair = base + ">" + counter;
-			var old = prev[pair];
+			var dst = {};
+			var pair = base.concat(">", counter);
  
-			if (base == counter)
-				continue;
+			unit = counter.split(":");
+			dst.currency = unit.shift();
+			dst.issuer = unit.shift();
+			dst.unit = counter;
  
-			if (dst <= 0)
-				continue;
-
-			offers[pair] = {
-				src: stake * src / (1 + stake),
-				dst: stake * dst / (1 - stake),
-				seq: old ? old.seq : undefined
-			};
+			if (ispair(src, dst))
+				list.push(pair);
 		}
 	}
  
+	return list;
+}
+
+function compute(saldo, prev)
+{
+	var offers = {};
+	var pairs = getpairs(saldo);
+	var npairs = pairs.length;
+	var stake = Math.sqrt(3 * npairs * fee / saldo["XRP"]);
+	var nassets = 0;
+	var unit, i;
+ 
+	console.info("Stake", stake);
+
+	for (unit in saldo)
+		if (0 < saldo[unit])
+			++nassets;
+
+	for (i = 0; i < npairs; i++) {
+		var offer = {};
+		var pair = pairs[i];
+		var units = pair.split(">");
+		var base = units.shift();
+		var counter = units.shift();
+		var src = saldo[base];
+		var dst = saldo[counter];
+		var old = offers[pair];
+ 
+		if (src < 0) {
+			offer.src = -stake * src / nassets;
+			offer.dst = stake * dst;
+		} else if (dst < 0) {
+			var spare = reserve / nassets;
+
+			offer.src = stake * (src - spare);
+			offer.dst = -stake * dst / nassets;
+		} else {
+			offer.src = stake * src / (1 + stake);
+			offer.dst = stake * dst / (1 - stake);
+		}
+
+		if (old)
+			offer.seq = old.seq;
+
+		offers[pair] = offer;
+	}
+
 	process.emit("offer", offers, prev, saldo);
 }
 

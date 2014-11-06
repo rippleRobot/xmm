@@ -33,7 +33,7 @@ function setxrp(error, response)
 function setlines(error, response)
 {
 	var shares = 0;
-	var lines, i;
+	var lines, i, unit;
 
 	if (error) {
 		console.error("Failed to get lines");
@@ -49,11 +49,10 @@ function setlines(error, response)
 		var account = line.account;
 
 		if (active) {
-			var unit = currency + ":" + account;
-
+			unit = currency + ":" + account;
 			saldo[unit] = balance;
 		} else if (balance < 0) {
-			var unit = currency + ":" + id;
+			unit = currency + ":" + id;
 
 			if (!saldo[unit])
 				saldo[unit] = 0;
@@ -61,6 +60,9 @@ function setlines(error, response)
 			saldo[unit] += balance;
 		}
 	}
+
+	for (unit in saldo)
+		console.info("Balance", saldo[unit], unit);
 
 	remote.request_account_offers(id, ledger, update);
 }
