@@ -11,13 +11,13 @@ var options = {
 };
 var env = process.env;
 
-function debug()
+function debug(data)
 {
 	var options = {
 		colors: true,
 		depth: 10
 	};
-	var str = util.inspect(arguments, options);
+	var str = util.inspect(data, options);
  
 	util.error(str);
 }

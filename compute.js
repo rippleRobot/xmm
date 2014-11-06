@@ -78,7 +78,7 @@ function compute(saldo, prev, reserve)
 		var counter = units.shift();
 		var src = saldo[base];
 		var dst = saldo[counter];
-		var old = offers[pair];
+		var old = prev[pair];
  
 		if (src < 0) {
 			offer.src = -stake * src / nassets;
