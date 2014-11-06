@@ -3,9 +3,44 @@ function choose(offers, prev, saldo)
 	var pending = {};
 	var pair;
 
+	function profit(offer, pair, reset)
+	{
+		var src, dst, base, counter, v0, v1;
+
+		if (!offer)
+			return 0;
+
+		src = offer.src;
+		dst = offer.dst;
+		pair = pair.split(">");
+		base = pair.shift();
+		base = saldo[base];
+		counter = pair.shift();
+		counter = saldo[counter];
+
+		if ((base < 0) || (counter < 0))
+			return 0;
+
+		v0 = base * counter;
+		v1 = (base - src) * (counter + dst);
+
+		if (reset)
+			v1 *= 1 - 3 * fee / saldo["XRP"];
+
+		return (v1 - v0) / v0;
+	}
+
 	function worth(offer, old, pair)
 	{
-		return !old;
+		p0 = profit(old, pair, false);
+		p1 = profit(offer, pair, true);
+
+		return (p0 < p1);
+	}
+
+	function obsolete(offer, pair)
+	{
+		return !offer;
 	}
 
 	for (pair in offers) {
@@ -24,7 +59,7 @@ function choose(offers, prev, saldo)
 	}
 
 	for (pair in pending)
-		if (worth(pending[pair], prev[pair], pair))
+		if (obsolete(prev[pair], pair))
 			return pair;
 }
 
