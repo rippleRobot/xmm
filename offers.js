@@ -79,13 +79,14 @@ function compute(saldo, prev, reserve)
 		var src = saldo[base];
 		var dst = saldo[counter];
 		var old = prev[pair];
+		var part = Math.sqrt(stake);
  
 		if (src < 0) {
-			offer.src = -stake * src / nassets;
-			offer.dst = stake * dst;
+			offer.src = -part * src / nassets;
+			offer.dst = part * dst;
 		} else if (dst < 0) {
-			offer.src = stake * (src - spare);
-			offer.dst = -stake * dst / nassets;
+			offer.src = part * (src - spare);
+			offer.dst = -part * dst / nassets;
 		} else {
 			offer.src = stake * src / (1 + stake);
 			offer.dst = stake * dst / (1 - stake);

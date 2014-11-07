@@ -66,7 +66,7 @@ function choose(offers, prev, saldo)
 
 	function obsolete(offer, prev, pair)
 	{
-		var src, dst, stake, base, counter, p0, p1;
+		var src, dst, part, stake, base, counter, p0, p1;
 
 		if (!prev)
 			return true;
@@ -83,9 +83,11 @@ function choose(offers, prev, saldo)
 		counter = saldo[counter];
 
 		if (0 < base)
-			stake = src / base;
+			part = src / base;
 		else
-			stake = dst / counter;
+			part = dst / counter;
+
+		stake = Math.pow(part, 2);
 
 		return stake < Math.abs(p1 - p0) / p0;
 	}
