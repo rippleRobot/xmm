@@ -13,7 +13,7 @@ function check()
 		console.info("Alive");
 		alive = false;
 	} else {
-		console.info("Reset");
+		console.info("Stuck");
 		process.exit();
 	}
 }
