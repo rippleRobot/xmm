@@ -114,10 +114,13 @@ function decide(offers, prev, saldo)
 {
 	var pair = choose(offers, prev, saldo);
 
-	if (pair)
+	if (pair) {
+		console.info("Submitting offer");
 		process.emit("submit", offers[pair], pair);
-	else
+	} else {
+		console.info("Offers look fair");
 		process.emit("ready");
+	}
 }
 
 process.on("offers", decide);

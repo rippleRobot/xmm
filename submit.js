@@ -30,7 +30,7 @@ function create(offer, pair)
 			console.error("Failed to create offer");
 
 		process.once("submit", create);
-		process.emit("request");
+		process.emit("ready");
 	}
 
 	console.info("Create", pair, src, dst, seq);

@@ -26,7 +26,7 @@ function start()
 {
 	console.info("Account", id);
 	remote.set_secret(id, env.XMM_KEY);
-	process.emit("request");
+	process.emit("ready");
 }
 
 global.debug = debug;

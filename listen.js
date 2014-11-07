@@ -1,13 +1,28 @@
+var pending = true;
+var ready = false;
+
 function request()
 {
-	console.info("Relevant transaction");
+	if (!ready) {
+		console.info("Schedule update");
+		pending = true;
+		return;
+	}
+
+	console.info("Request update");
+	ready = false;
+	pending = false;
 	process.emit("request");
 }
 
 function listen()
 {
-	console.info("Watching account");
-	account.once("transaction", request);
+	ready = true;
+
+	if (pending)
+		request();
 }
+
+account.on("transaction", request);
 
 process.on("ready", listen);
