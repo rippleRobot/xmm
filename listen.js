@@ -1,21 +1,11 @@
 var pending = true;
 var ready = false;
-var alive = false;
 
-function tick()
+function update()
 {
 	var date = new Date();
 
-	console.info("Alive", date);
-	alive = true;
-}
-
-function check()
-{
-	if (alive)
-		alive = false;
-	else
-		process.exit();
+	console.info("Update", date);
 }
 
 function request()
@@ -38,9 +28,8 @@ function listen()
 		request();
 }
 
-setInterval(check, 6e5);
 setInterval(request, 3e5);
-process.on("update", tick);
 account.on("transaction", request);
+process.on("update", update);
 
 process.on("ready", listen);
