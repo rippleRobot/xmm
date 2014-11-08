@@ -115,14 +115,17 @@ function choose(offers, prev, saldo)
 function decide(offers, prev, saldo)
 {
 	var pair = choose(offers, prev, saldo);
+	var unit;
 
-	if (pair) {
-		console.info("Submitting offer");
-		process.emit("submit", offers[pair], pair);
-	} else {
-		console.info("Offers look fair");
+	if (!pair) {
 		process.emit("ready");
+		return;
 	}
+
+	for (unit in saldo)
+		console.info("Balance", saldo[unit], unit);
+
+	process.emit("submit", offers[pair], pair);
 }
 
 process.on("offers", decide);

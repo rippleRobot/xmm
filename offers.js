@@ -61,8 +61,6 @@ function compute(saldo, prev, reserve)
 	var nassets = 0;
 	var unit, i, nitems, spare;
  
-	console.info("Stake", stake);
-
 	for (unit in saldo)
 		if (0 < saldo[unit])
 			++nassets;

@@ -66,9 +66,6 @@ function setlines(error, response)
 		}
 	}
 
-	for (unit in saldo)
-		console.info("Balance", saldo[unit], unit);
-
 	remote.request_account_offers(id, ledger, update);
 }
 
