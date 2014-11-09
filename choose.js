@@ -1,5 +1,6 @@
 function choose(offers, prev, saldo)
 {
+	var issued = {};
 	var pending = {};
 	var pair;
 
@@ -98,17 +99,20 @@ function choose(offers, prev, saldo)
 		var base = units.shift();
 		var counter = units.shift();
 
-		if ((saldo[base] < 0) || (saldo[counter] < 0)) {
+		if ((saldo[base] < 0) || (saldo[counter] < 0))
+			issued[pair] = offer;
+		else if (prev[pair])
 			pending[pair] = offer;
-			continue;
-		}
-
-		if (worth(offer, prev[pair], pair))
+		else
 			return pair;
 	}
 
 	for (pair in pending)
-		if (obsolete(pending[pair], prev[pair], pair))
+		if (worth(pending[pair], prev[pair], pair))
+			return pair;
+
+	for (pair in issued)
+		if (obsolete(issued[pair], prev[pair], pair))
 			return pair;
 }
 

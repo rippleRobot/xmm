@@ -24,7 +24,7 @@ function ispair(src, dst)
 function getpairs(saldo)
 {
 	var list = [];
-	var base, unit;
+	var base, unit, i;
  
 	for (base in saldo) {
 		var src = {};
@@ -49,6 +49,15 @@ function getpairs(saldo)
 		}
 	}
  
+	for (i = list.length - 1; 0 < i; i--) {
+		var j = Math.floor(Math.random() * (i + 1));
+		var tmp;
+
+		tmp = list[i];
+		list[i] = list[j];
+		list[j] = tmp;
+	}
+
 	return list;
 }
 
