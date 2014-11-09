@@ -18,5 +18,5 @@ stop:
 	sleep 1
 
 clean: stop
-	-rm -i *.log
+	-rm -i *.log history.json
 	-rm -fr node_modules

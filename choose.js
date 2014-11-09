@@ -118,7 +118,7 @@ function decide(offers, prev, saldo)
 	var unit;
 
 	if (!pair) {
-		process.emit("ready");
+		process.emit("steady", saldo);
 		return;
 	}
 

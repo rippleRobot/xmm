@@ -1,3 +1,5 @@
+var assert = require("assert");
+var fs = require("fs");
 var util = require("util");
 
 var options = {
@@ -10,6 +12,18 @@ var options = {
 	trusted: false
 };
 var env = process.env;
+var filename = "history.json";
+var history;
+
+function save(entry)
+{
+	var data;
+
+	history.push(entry);
+
+	data = JSON.stringify(history);
+	fs.writeFileSync(filename, data);
+}
 
 function debug(data)
 {
@@ -29,6 +43,18 @@ function start()
 	process.emit("ready");
 }
 
+try {
+	history = fs.readFileSync(filename);
+	history = JSON.parse(history);
+	assert(history instanceof Array);
+	assert(history.length);
+} catch (error) {
+	console.info("History unavailable");
+	history = [];
+}
+
+global.history = history;
+global.save = save;
 global.debug = debug;
 global.ripple = require("ripple-lib");
 global.remote = new ripple.Remote(options);
