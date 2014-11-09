@@ -9,47 +9,9 @@
 	rel="stylesheet">
 
 <script src="http://code.jquery.com/jquery.js"></script>
-<script src="http://code.highcharts.com/stock/highstock.js"></script>
 
 <script>
 var table, template, state, series;
-
-function now()
-{
-	var date = new Date();
-
-	return date.getTime();
-}
-
-function rate(step)
-{
-	var src = state[step - 1];
-	var dst = state[step];
-	var t1, t0, v1, v0;
-	var dt, dv;
-
-	if (src) {
-		t0 = src.time;
-		v0 = src.value;
-	} else {
-		t0 = 0;
-		v0 = 0;
-	}
-
-	if (dst) {
-		t1 = dst.time;
-		v1 = dst.value;
-	} else {
-		t1 = now();
-		v1 = product();
-	}
-
-	dt = t1 - t0;
-	dv = v1 - v0;
-	if (dv < 0)
-		dv = 0;
-	return dv / dt;
-}
 
 function interest(step)
 {
@@ -65,7 +27,7 @@ function interest(step)
 	return Math.pow(ratio, year / period) - 1;
 }
 
-function addrow(change, step)
+function addrow(step)
 {
 	var row = template.clone();
 	var children = row.children();
@@ -79,14 +41,27 @@ function addrow(change, step)
 			$(this).text(datum);
 	}
 
-	children.children("span." + change).removeClass("invisible");
 	children.each(fill);
 	table.prepend(row);
 }
 
+function product(saldo)
+{
+	var value = 1;
+	var unit;
+
+	for (unit in saldo) {
+		var balance = saldo[unit];
+
+		if (0 < balance)
+			value *= balance;
+	}
+
+	return value;
+}
+
 function load(data)
 {
-	var cutoff = location.search;
 	var date = new Date();
 	var timezone = date.getTimezoneOffset();
 	var i, deposit;
@@ -94,7 +69,7 @@ function load(data)
 	state = data;
 
 	if (state.length)
-		deposit = state[0].value;
+		deposit = product(state[0].saldo);
 
 	series = [{
 		yAxis: 0,
@@ -133,168 +108,38 @@ function load(data)
 	table = $("tbody");
 	template = $("tr.template").detach();
 	template.removeClass("template");
-	cutoff = cutoff.replace("?cutoff=", "");
-	cutoff = parseInt(cutoff);
 
 	for (i = 0; i < state.length; i++) {
 		var prev = state[i - 1];
 		var last = state[i];
 		var time = last.time;
-		var bugs = last.bugs;
-		var change, j;
+		var saldo = last.saldo;
 
 		if (!prev)
 			prev = last;
 
-		last.value *= 100 / deposit;
+		last.value = 100 * product(saldo) / deposit;
 		last.date = new Date(last.time);
 		last.time /= 6e4;
-		last.stake *= 100;
-		last.abs = 100 * rate(i);
-		last.rate = i ? (last.abs + prev.rate) / 2 : last.abs;
 		last.interest = 100 * interest(i);
 		last.since = last.time - prev.time;
 		last.growth = 100 * (last.value - prev.value);
 
-		if (i < cutoff)
-			continue;
-
-		if (last.value <= prev.value)
-			change = "stalled";
-		else if (last.rate < prev.rate)
-			change = "worse";
-		else
-			change = "better";
-
-		addrow(change, {
+		addrow({
 			index: i.toFixed(0),
 			growth: last.growth.toFixed(2) + "\u2031",
 			since: last.since.toFixed(0) + " min",
 			value: last.value.toFixed(2) + "%",
-			stake: last.stake.toFixed(2) + "%",
 			date: last.date.toLocaleDateString(),
 			time: last.date.toLocaleTimeString(),
-			rate: last.rate.toFixed(2) + "\u2031",
 			interest: last.interest.toFixed(2) + "%"
 		});
-
-		series[0].data.push([time, last.stake]);
-		series[1].data.push([time, last.rate]);
-		series[2].data.push([time, last.growth]);
-
-		if (!bugs)
-			continue;
-
-		for (j = 0; j < bugs.length; j++) {
-			var bug = new Date(bugs[j]);
-
-			addrow("bug", {
-				date: bug.toLocaleDateString(),
-				time: bug.toLocaleTimeString()
-			});
-		}
 	}
-
-	Highcharts.setOptions({
-		global: {
-			timezoneOffset: timezone
-		}
-	});
-	$("div.chart").highcharts("StockChart", {
-		tooltip: {
-			animation: false,
-			hideDelay: 0
-		},
-		plotOptions: {
-			series: {
-				startOnTick: true,
-				endOnTick: true,
-				dataGrouping: {
-					smoothed: true,
-					forced: true
-				}
-			}
-		},
-		xAxis: {
-			minTickInterval: 6e4,
-			ordinal: false
-		},
-		chart: {
-			animation: false,
-			height: 480
-		},
-		yAxis: [{
-			showLastLabel: true,
-			startOnTick: false,
-			endOnTick: false,
-			height: "30%"
-		}, {
-			showLastLabel: true,
-			startOnTick: false,
-			endOnTick: false,
-			labels: {
-				align: "right",
-				x: 0
-			},
-			top: "35%",
-			height: "30%"
-		}, {
-			showLastLabel: true,
-			startOnTick: false,
-			endOnTick: false,
-			labels: {
-				align: "right",
-				x: 0
-			},
-			top: "70%",
-			height: "30%",
-			offset: 0
-		}],
-		rangeSelector: {
-			buttons: [{
-				type: "hour",
-				count: 3,
-				text: "3h"
-			}, {
-				type: "hour",
-				count: 8,
-				text: "8h"
-			}, {
-				type: "day",
-				count: 1,
-				text: "1d"
-			}, {
-				type: "day",
-				count: 3,
-				text: "3d"
-			}, {
-				type: "week",
-				count: 1,
-				text: "1w"
-			}, {
-				type: "month",
-				count: 1,
-				text: "1m"
-			}, {
-				type: "month",
-				count: 3,
-				text: "3m"
-			}, {
-				type: "all",
-				text: "All"
-			}],
-			selected: 0
-		},
-		navigator: {
-			baseSeries: 1
-		},
-		series: series
-	});
 }
 
 function main()
 {
-	$.getJSON("state.json", load);
+	$.getJSON("history.json", load);
 }
 
 $(main);
@@ -303,7 +148,7 @@ $(main);
 
 <body>
 <div class="container-fluid">
-<div class="chart page-header"></div>
+<div class="page-header"></div>
 
 <table class="table table-striped table-bordered text-right">
 <thead>
@@ -312,9 +157,6 @@ $(main);
 <th id="date">Date</th>
 <th id="time">Time</th>
 <th id="since">Passed</th>
-<th id="change">Change</th>
-<th id="stake">Stake</th>
-<th id="rate">Rate</th>
 <th id="growth">Growth</th>
 <th id="value">Value</th>
 <th id="interest">Annual</th>
@@ -327,14 +169,6 @@ $(main);
 <td headers="date"></td>
 <td headers="time"></td>
 <td headers="since"></td>
-<td headers="change" class="text-center">
-<span class="invisible bug label label-default">Bug</span>
-<span class="invisible stalled label label-danger">Stalled</span>
-<span class="invisible worse label label-warning">Worse</span>
-<span class="invisible better label label-success">Better</span>
-</td>
-<td headers="stake"></td>
-<td headers="rate"></td>
 <td headers="growth"></td>
 <td headers="value"></td>
 <td headers="interest"></td>
