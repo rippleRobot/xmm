@@ -36,10 +36,10 @@ global.id = env.XMM_ID;
 global.account = remote.account(id);
 global.fee = options.max_fee / 1e6;
 
-require("./decide");
 require("./listen");
-require("./offers");
-require("./submit");
 require("./update");
+require("./offers");
+require("./choose");
+require("./submit");
 
 remote.connect(start);
