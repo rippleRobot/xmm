@@ -41,5 +41,6 @@ require("./update");
 require("./offers");
 require("./choose");
 require("./submit");
+require("./prices");
 
 remote.connect(start);
