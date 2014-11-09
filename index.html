@@ -11,15 +11,15 @@
 <script src="http://code.jquery.com/jquery.js"></script>
 
 <script>
-var table, template, state, series;
+var table, template, log;
 
-function interest(step)
+function interest(entry)
 {
-	var src = state[0];
-	var dst = state[step];
+	var src = log[0];
+	var dst = log[entry];
 	var year = 60 * 24 * 365.25;
 
-	if (!src || !dst || !step)
+	if (!src || !dst || !entry)
 		return 0;
 
 	ratio = dst.value / src.value;
@@ -27,7 +27,7 @@ function interest(step)
 	return Math.pow(ratio, year / period) - 1;
 }
 
-function addrow(step)
+function addrow(entry)
 {
 	var row = template.clone();
 	var children = row.children();
@@ -35,7 +35,7 @@ function addrow(step)
 	function fill()
 	{
 		var field = $(this).attr("headers");
-		var datum = step[field];
+		var datum = entry[field];
 
 		if (datum)
 			$(this).text(datum);
@@ -66,52 +66,18 @@ function load(data)
 	var timezone = date.getTimezoneOffset();
 	var i, deposit;
 
-	state = data;
+	log = data;
 
-	if (state.length)
-		deposit = product(state[0].saldo);
-
-	series = [{
-		yAxis: 0,
-		name: $("th#stake").text(),
-		type: "line",
-		step: "step",
-		tooltip: {
-			valueDecimals: 2,
-			valueSuffix: "%"
-		},
-		data: []
-	}, {
-		yAxis: 1,
-		name: $("th#rate").text(),
-		type: "spline",
-		marker: {
-			enabled: true,
-			radius: 4
-		},
-		tooltip: {
-			valueDecimals: 2,
-			valueSuffix: "\u2031"
-		},
-		data: []
-	}, {
-		yAxis: 2,
-		name: $("th#growth").text(),
-		type: "column",
-		tooltip: {
-			valueDecimals: 2,
-			valueSuffix: "\u2031"
-		},
-		data: []
-	}];
+	if (log.length)
+		deposit = product(log[0].saldo);
 
 	table = $("tbody");
 	template = $("tr.template").detach();
 	template.removeClass("template");
 
-	for (i = 0; i < state.length; i++) {
-		var prev = state[i - 1];
-		var last = state[i];
+	for (i = 0; i < log.length; i++) {
+		var prev = log[i - 1];
+		var last = log[i];
 		var time = last.time;
 		var saldo = last.saldo;
 
