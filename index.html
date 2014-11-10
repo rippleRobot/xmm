@@ -18,6 +18,7 @@ function interest(entry)
 	var src = log[0];
 	var dst = log[entry];
 	var year = 60 * 24 * 365.25;
+	var ratio, period;
 
 	if (!src || !dst || !entry)
 		return 0;
@@ -25,6 +26,48 @@ function interest(entry)
 	ratio = dst.value / src.value;
 	period = dst.time - src.time;
 	return Math.pow(ratio, year / period) - 1;
+}
+
+function nassets(saldo)
+{
+	var n = 0;
+	var unit;
+
+	for (unit in saldo)
+		if (0 < saldo[unit])
+			++n;
+
+	return n;
+}
+
+function growth(src, dst)
+{
+	var n = 0;
+	var k = 1;
+	var n0 = src.nassets;
+	var n1 = dst.nassets;
+	var unit, iou0, iou1;
+
+	src = src.saldo;
+	dst = dst.saldo;
+
+	for (unit in dst) {
+		var prev = src[unit];
+		var balance = dst[unit];
+
+		if (!balance || !prev)
+			continue;
+
+		if (0 < balance) {
+			k *= balance / prev;
+			++n;
+		} else {
+			iou0 = -prev / n0;
+			iou1 = -balance / n1;
+		}
+	}
+
+	return k / Math.pow(iou1 / iou0, n);
 }
 
 function addrow(entry)
@@ -45,31 +88,14 @@ function addrow(entry)
 	table.prepend(row);
 }
 
-function product(saldo)
-{
-	var value = 1;
-	var unit;
-
-	for (unit in saldo) {
-		var balance = saldo[unit];
-
-		if (0 < balance)
-			value *= balance;
-	}
-
-	return value;
-}
-
 function load(data)
 {
-	var date = new Date();
-	var timezone = date.getTimezoneOffset();
-	var i, deposit;
+	var i;
 
 	log = data;
 
 	if (log.length)
-		deposit = product(log[0].saldo);
+		log[0].value = 100;
 
 	table = $("tbody");
 	template = $("tr.template").detach();
@@ -84,7 +110,8 @@ function load(data)
 		if (!prev)
 			prev = last;
 
-		last.value = 100 * product(saldo) / deposit;
+		last.nassets = nassets(saldo);
+		last.value = prev.value * growth(prev, last);
 		last.date = new Date(last.time);
 		last.time /= 6e4;
 		last.interest = 100 * interest(i);
