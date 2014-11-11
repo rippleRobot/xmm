@@ -101,7 +101,7 @@ function choose(offers, prev, saldo)
 
 		if ((saldo[base] < 0) || (saldo[counter] < 0))
 			issued[pair] = offer;
-		else if (prev[pair])
+		else if (0 < profit(prev[pair], pair, false))
 			pending[pair] = offer;
 		else
 			return pair;
