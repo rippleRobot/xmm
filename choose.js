@@ -2,23 +2,26 @@ function choose(offers, prev, saldo, stake)
 {
 	var issued = {};
 	var pending = {};
-	var pair;
+	var nassets = 0;
+	var pair, unit;
 
-	function diff(offer, prev)
+	function diff(offer, old)
 	{
 		var p0, p1;
 
-		if (!prev)
+		if (!old)
 			return 1;
 
-		p0 = prev.src / prev.dst;
+		p0 = old.src / old.dst;
 		p1 = offer.src / offer.dst;
 		return Math.abs(p1 - p0) / p0;
 	}
 
 	function profit(offer, pair, reset)
 	{
-		var src, dst, base, counter, v0, v1;
+		var v0 = 1;
+		var v1 = 1;
+		var src, dst, base, counter;
 
 		if (!offer)
 			return 0;
@@ -31,26 +34,40 @@ function choose(offers, prev, saldo, stake)
 		counter = pair.shift();
 		counter = saldo[counter];
 
-		if ((base < 0) || (counter < 0))
-			return 0;
+		if (0 < base) {
+			v0 *= base;
+			v1 *= base - src;
+		} else {
+			v0 /= base;
+			v1 /= base - src * nassets;
+		}
 
-		v0 = base * counter;
-		v1 = (base - src) * (counter + dst);
+		if (0 < counter) {
+			v0 *= counter;
+			v1 *= counter + dst;
+		} else {
+			v0 /= counter;
+			v1 /= counter + dst * nassets;
+		}
 
 		if (reset)
 			v1 *= 1 - 3 * fee / saldo["XRP"];
 
-		return (v1 - v0) / v0;
+		return v1 / v0 - 1;
 	}
 
 	function worth(offer, old, pair)
 	{
 		var p0 = profit(old, pair, false);
 		var p1 = profit(offer, pair, true);
-		var delta = diff(offer, prev);
+		var delta = diff(offer, old);
 
 		return (stake < delta) || (p0 < p1);
 	}
+
+	for (unit in saldo)
+		if (0 < saldo[unit])
+			++nassets;
 
 	for (pair in offers) {
 		var offer = offers[pair];
@@ -71,7 +88,7 @@ function choose(offers, prev, saldo, stake)
 			return pair;
 
 	for (pair in issued)
-		if (stake < diff(issued[pair], prev[pair]))
+		if (worth(issued[pair], prev[pair], pair))
 			return pair;
 }
 
