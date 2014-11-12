@@ -101,7 +101,7 @@ function compute(saldo, prev)
 		offers[pair] = offer;
 	}
 
-	process.emit("offers", offers, prev, saldo);
+	process.emit("offers", offers, prev, saldo, stake);
 }
 
 process.on("update", compute);

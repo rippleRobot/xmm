@@ -1,4 +1,4 @@
-function choose(offers, prev, saldo)
+function choose(offers, prev, saldo, stake)
 {
 	var issued = {};
 	var pending = {};
@@ -65,9 +65,9 @@ function choose(offers, prev, saldo)
 			return false;
 	}
 
-	function obsolete(offer, prev, pair)
+	function obsolete(offer, prev)
 	{
-		var src, dst, part, stake, base, counter, p0, p1;
+		var src, dst, p0, p1;
 
 		if (!prev)
 			return true;
@@ -76,19 +76,6 @@ function choose(offers, prev, saldo)
 		dst = offer.dst;
 		p0 = src / dst;
 		p1 = prev.src / prev.dst;
-
-		pair = pair.split(">");
-		base = pair.shift();
-		base = saldo[base];
-		counter = pair.shift();
-		counter = saldo[counter];
-
-		if (0 < base)
-			part = src / base;
-		else
-			part = dst / counter;
-
-		stake = Math.pow(part, 2);
 
 		return stake < Math.abs(p1 - p0) / p0;
 	}
@@ -112,13 +99,13 @@ function choose(offers, prev, saldo)
 			return pair;
 
 	for (pair in issued)
-		if (obsolete(issued[pair], prev[pair], pair))
+		if (obsolete(issued[pair], prev[pair]))
 			return pair;
 }
 
-function decide(offers, prev, saldo)
+function decide(offers, prev, saldo, stake)
 {
-	var pair = choose(offers, prev, saldo);
+	var pair = choose(offers, prev, saldo, stake);
 	var unit;
 
 	if (!pair) {
