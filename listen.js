@@ -38,8 +38,8 @@ function listen()
 		request();
 }
 
-setInterval(request, 3e5);
-setInterval(check, 6e5);
+setInterval(request, 6e4);
+setInterval(check, 3e5);
 account.on("transaction", request);
 process.on("update", update);
 
