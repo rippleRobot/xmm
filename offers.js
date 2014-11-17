@@ -66,7 +66,7 @@ function compute(saldo, prev)
 	var offers = {};
 	var pairs = getpairs(saldo);
 	var npairs = pairs.length;
-	var stake = Math.sqrt(3 * npairs * fee / saldo["XRP"]);
+	var stake = 2 * Math.sqrt(npairs * fee / saldo["XRP"]);
 	var nassets = 0;
 	var unit, i;
  
