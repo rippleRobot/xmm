@@ -102,6 +102,7 @@ function decide(offers, prev, saldo, stake)
 		return;
 	}
 
+	console.info("Stake", stake);
 	for (unit in saldo)
 		console.info("Balance", saldo[unit], unit);
 
