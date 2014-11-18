@@ -40,34 +40,39 @@ function nassets(saldo)
 	return n;
 }
 
-function growth(src, dst)
+function prices(entry)
 {
-	var n = 0;
-	var k = 1;
-	var n0 = src.nassets;
-	var n1 = dst.nassets;
-	var unit, iou0, iou1;
+	var p = {};
+	var saldo = entry.saldo;
+	var n = nassets(saldo);
+	var unit, iou;
 
-	src = src.saldo;
-	dst = dst.saldo;
+	for (unit in saldo) {
+		var balance = saldo[unit];
 
-	for (unit in dst) {
-		var prev = src[unit];
-		var balance = dst[unit];
-
-		if (!balance || !prev)
-			continue;
-
-		if (0 < balance) {
-			k *= balance / prev;
-			++n;
-		} else {
-			iou0 = -prev / n0;
-			iou1 = -balance / n1;
-		}
+		if (0 < balance)
+			p[unit] = balance;
+		else
+			iou = -balance;
 	}
 
-	return k / Math.pow(iou1 / iou0, n);
+	for (unit in p)
+		p[unit] *= n / iou;
+
+	return p;
+}
+
+function growth(src, dst)
+{
+	var k = 1;
+	var p0 = src.prices;
+	var p1 = dst.prices;
+	var unit;
+
+	for (unit in p1)
+		k *= p1[unit] / p0[unit];
+
+	return k;
 }
 
 function addrow(entry)
@@ -110,7 +115,7 @@ function load(data)
 		if (!prev)
 			prev = last;
 
-		last.nassets = nassets(saldo);
+		last.prices = prices(last);
 		last.value = prev.value * growth(prev, last);
 		last.date = new Date(last.time);
 		last.time /= 6e4;
