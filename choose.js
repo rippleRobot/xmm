@@ -51,7 +51,7 @@ function choose(offers, prev, saldo, stake)
 		}
 
 		if (reset)
-			v1 *= 1 - 3 * fee / saldo["XRP"];
+			v1 *= 1 - Math.pow(stake / 2, 2);
 
 		return v1 / v0 - 1;
 	}
