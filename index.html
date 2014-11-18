@@ -119,12 +119,11 @@ function load(data)
 		last.growth = 100 * (last.value - prev.value);
 
 		addrow({
-			index: i.toFixed(0),
+			index: last.seq.toFixed(0),
 			growth: last.growth.toFixed(2) + "\u2031",
 			since: last.since.toFixed(0) + " min",
 			value: last.value.toFixed(2) + "%",
-			date: last.date.toLocaleDateString(),
-			time: last.date.toLocaleTimeString(),
+			date: last.date.toLocaleString(),
 			interest: last.interest.toFixed(2) + "%"
 		});
 	}
@@ -148,7 +147,6 @@ $(main);
 <tr>
 <th id="index">#</th>
 <th id="date">Date</th>
-<th id="time">Time</th>
 <th id="since">Passed</th>
 <th id="growth">Growth</th>
 <th id="value">Value</th>
@@ -160,7 +158,6 @@ $(main);
 <tr class="template">
 <td headers="index"></td>
 <td headers="date"></td>
-<td headers="time"></td>
 <td headers="since"></td>
 <td headers="growth"></td>
 <td headers="value"></td>
