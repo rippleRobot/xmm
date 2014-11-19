@@ -19,9 +19,7 @@ function choose(offers, prev, saldo, stake)
 
 	function profit(offer, pair, reset)
 	{
-		var v0 = 1;
-		var v1 = 1;
-		var src, dst, base, counter;
+		var src, dst, base, counter, v0, v1;
 
 		if (!offer)
 			return 0;
@@ -34,21 +32,18 @@ function choose(offers, prev, saldo, stake)
 		counter = pair.shift();
 		counter = saldo[counter];
 
-		if (0 < base) {
-			v0 *= base;
-			v1 *= base - src;
-		} else {
-			v0 /= base;
-			v1 /= base - src * nassets;
+		if (base < 0) {
+			src = -src;
+			dst /= nassets;
 		}
 
-		if (0 < counter) {
-			v0 *= counter;
-			v1 *= counter + dst;
-		} else {
-			v0 /= counter;
-			v1 /= counter + dst * nassets;
+		if (counter < 0) {
+			src /= nassets;
+			dst = -dst;
 		}
+
+		v0 = base * counter;
+		v1 = (base - src) * (counter + dst);
 
 		if (reset)
 			v1 *= 1 - Math.pow(stake / 2, 2);
