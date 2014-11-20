@@ -13,6 +13,18 @@ function getseq(offers)
 	return latest;
 }
 
+function nassets(saldo)
+{
+	var n = 0;
+	var unit;
+
+	for (unit in saldo)
+		if (0 < saldo[unit])
+			++n;
+
+	return n;
+}
+
 function log(saldo, offers)
 {
 	var date = new Date();
@@ -23,6 +35,24 @@ function log(saldo, offers)
 		saldo: saldo,
 		seq: seq
 	};
+	var n = nassets(saldo);
+	var prices = {};
+	var unit, iou;
+
+	for (unit in saldo) {
+		var balance = saldo[unit];
+
+		if (0 < balance)
+			prices[unit] = balance;
+		else
+			iou = -balance;
+	}
+
+	for (unit in prices)
+		prices[unit] *= n / iou;
+
+	entry.prices = prices;
+	entry.iou = iou;
 
 	if (prev)
 		prev = prev.seq;
