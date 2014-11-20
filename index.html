@@ -31,40 +31,6 @@ function interest(entry)
 	return Math.pow(ratio, year / period) - 1;
 }
 
-function nassets(saldo)
-{
-	var n = 0;
-	var unit;
-
-	for (unit in saldo)
-		if (0 < saldo[unit])
-			++n;
-
-	return n;
-}
-
-function prices(entry)
-{
-	var dict = {};
-	var saldo = entry.saldo;
-	var n = nassets(saldo);
-	var unit, iou;
-
-	for (unit in saldo) {
-		var balance = saldo[unit];
-
-		if (0 < balance)
-			dict[unit] = balance;
-		else
-			iou = -balance;
-	}
-
-	for (unit in dict)
-		dict[unit] *= n / iou;
-
-	return dict;
-}
-
 function growth(src, dst)
 {
 	var k = 1;
@@ -185,9 +151,7 @@ function load(data)
 		var prev = log[cutoff == i ? i : i - 1];
 		var last = log[i];
 		var time = last.time;
-		var saldo = last.saldo;
 
-		last.prices = prices(last);
 		last.value = prev.value * growth(prev, last);
 		last.date = new Date(last.time);
 		last.time /= 6e4;

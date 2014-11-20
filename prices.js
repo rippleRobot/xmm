@@ -32,7 +32,6 @@ function log(saldo, offers)
 	var seq = getseq(offers);
 	var entry = {
 		time: date.getTime(),
-		saldo: saldo,
 		seq: seq
 	};
 	var n = nassets(saldo);
