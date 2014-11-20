@@ -199,6 +199,9 @@ function load(data)
 	Highcharts.setOptions({
 		global: {
 			timezoneOffset: timezone
+		},
+		yAxis: {
+			minorTickInterval: "auto"
 		}
 	});
 	$("div.chart").highcharts("StockChart", {
