@@ -199,6 +199,7 @@ function load(data)
 		addrow({
 			index: i.toFixed(0),
 			seq: last.seq.toFixed(0),
+			iou: last.iou.toFixed(0),
 			growth: last.growth.toFixed(2) + "\u2031",
 			since: last.since.toFixed(0) + " min",
 			value: last.value.toFixed(2) + "%",
@@ -335,6 +336,7 @@ $(main);
 <tr>
 <th id="index">Index</th>
 <th id="seq">Sequence</th>
+<th id="iou">Shares</th>
 <th id="date">Date</th>
 <th id="time">Time</th>
 <th id="since">Passed</th>
@@ -348,6 +350,7 @@ $(main);
 <tr class="template">
 <td headers="index"></td>
 <td headers="seq"></td>
+<td headers="iou"></td>
 <td headers="date"></td>
 <td headers="time"></td>
 <td headers="since"></td>
