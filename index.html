@@ -199,9 +199,6 @@ function load(data)
 	Highcharts.setOptions({
 		global: {
 			timezoneOffset: timezone
-		},
-		yAxis: {
-			minorTickInterval: "auto"
 		}
 	});
 	$("div.chart").highcharts("StockChart", {
@@ -237,20 +234,24 @@ function load(data)
 			height: 480
 		},
 		yAxis: [{
+			labels: {
+				align: "left",
+				x: 2
+			},
+			minorTickInterval: "auto",
 			showLastLabel: true,
 			startOnTick: false,
-			endOnTick: false,
-			height: "65%"
+			endOnTick: false
 		}, {
 			showLastLabel: true,
 			startOnTick: false,
 			endOnTick: false,
 			labels: {
 				align: "right",
-				x: 0
+				x: -2
 			},
-			top: "70%",
-			height: "30%",
+			opposite: false,
+			gridLineDashStyle: "Dash",
 			offset: 0
 		}],
 		rangeSelector: {
