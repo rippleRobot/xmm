@@ -14,16 +14,16 @@
 <script>
 var init = {};
 var series = [];
-var table, template, log;
+var table, template, log, cutoff;
 
 function interest(entry)
 {
-	var src = log[0];
+	var src = log[cutoff];
 	var dst = log[entry];
 	var year = 60 * 24 * 365.25;
 	var ratio, period;
 
-	if (!src || !dst || !entry)
+	if (cutoff == entry)
 		return 0;
 
 	ratio = dst.value / src.value;
@@ -148,6 +148,12 @@ function load(data)
 
 	log = data;
 
+	cutoff = location.search;
+	cutoff = cutoff.replace("?cutoff=", "");
+	cutoff = parseInt(cutoff);
+	if (!cutoff)
+		cutoff = 0;
+
 	series.push({
 		yAxis: 1,
 		name: $("th#growth").text(),
@@ -160,20 +166,17 @@ function load(data)
 	});
 
 	if (log.length)
-		log[0].value = 100;
+		log[cutoff].value = 100;
 
 	table = $("tbody");
 	template = $("tr.template").detach();
 	template.removeClass("template");
 
-	for (i = 0; i < log.length; i++) {
-		var prev = log[i - 1];
+	for (i = cutoff; i < log.length; i++) {
+		var prev = log[cutoff == i ? i : i - 1];
 		var last = log[i];
 		var time = last.time;
 		var saldo = last.saldo;
-
-		if (!prev)
-			prev = last;
 
 		last.prices = prices(last);
 		last.value = prev.value * growth(prev, last);
@@ -203,7 +206,6 @@ function load(data)
 	});
 	$("div.chart").highcharts("StockChart", {
 		colors: [
-			"chocolate",
 			"black",
 			"red",
 			"gold",
@@ -223,6 +225,9 @@ function load(data)
 					smoothed: true,
 					forced: true
 				}
+			},
+			column: {
+				color: "chocolate"
 			}
 		},
 		xAxis: {
@@ -247,11 +252,15 @@ function load(data)
 			startOnTick: false,
 			endOnTick: false,
 			labels: {
+				style: {
+					color: "chocolate"
+				},
 				align: "right",
 				x: -2
 			},
 			opposite: false,
 			gridLineDashStyle: "Dash",
+			gridLineColor: "chocolate",
 			offset: 0
 		}],
 		rangeSelector: {
@@ -315,7 +324,7 @@ $(main);
 <table class="table table-striped table-bordered text-right">
 <thead>
 <tr>
-<th id="index">#</th>
+<th id="index">Index</th>
 <th id="seq">Sequence</th>
 <th id="date">Date</th>
 <th id="time">Time</th>
