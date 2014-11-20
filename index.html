@@ -72,8 +72,13 @@ function growth(src, dst)
 	var p1 = dst.prices;
 	var unit;
 
-	for (unit in p1)
-		k *= p1[unit] / p0[unit];
+	for (unit in p1) {
+		var prev = p0[unit];
+		var last = p1[unit];
+
+		if (prev)
+			k *= last / prev;
+	}
 
 	return k;
 }
