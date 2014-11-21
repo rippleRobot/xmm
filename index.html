@@ -124,6 +124,7 @@ function zoom(range)
 
 function load(data)
 {
+	var chart = $("div.chart");
 	var date = new Date();
 	var timezone = date.getTimezoneOffset();
 	var i;
@@ -191,7 +192,7 @@ function load(data)
 			timezoneOffset: timezone
 		}
 	});
-	$("div.chart").highcharts("StockChart", {
+	chart.highcharts("StockChart", {
 		colors: [
 			"maroon",
 			"red",
@@ -227,7 +228,6 @@ function load(data)
 			events: {
 				afterSetExtremes: zoom
 			},
-			min: since,
 			minTickInterval: 6e4,
 			ordinal: false
 		},
@@ -296,14 +296,12 @@ function load(data)
 				text: "All"
 			}]
 		},
-		scrollbar: {
-			liveRedraw: false
-		},
 		navigator: {
 			enabled: false
 		},
 		series: series
 	});
+	chart.highcharts().xAxis[0].setExtremes(since);
 }
 
 function main()
