@@ -230,14 +230,15 @@ function load(data)
 			ordinal: false
 		},
 		chart: {
+			alignTicks: false,
+			zoomType: "x",
 			animation: false,
 			height: 480
 		},
 		yAxis: [{
 			labels: {
-				align: "left",
-				x: 2,
-				y: 4
+				align: "right",
+				x: 0
 			},
 			minorTickInterval: "auto",
 			showLastLabel: true,
@@ -251,9 +252,8 @@ function load(data)
 				style: {
 					color: "chocolate"
 				},
-				align: "right",
-				x: -2,
-				y: 4
+				align: "left",
+				x: 0
 			},
 			opposite: false,
 			gridLineDashStyle: "Dash",
@@ -261,6 +261,7 @@ function load(data)
 			offset: 0
 		}],
 		rangeSelector: {
+			inputEnabled: false,
 			buttons: [{
 				type: "hour",
 				count: 3,
@@ -294,11 +295,11 @@ function load(data)
 				text: "All"
 			}]
 		},
+		scrollbar: {
+			liveRedraw: false
+		},
 		navigator: {
-			series: {
-				type: "column"
-			},
-			baseSeries: 0
+			enabled: false
 		},
 		series: series
 	});
