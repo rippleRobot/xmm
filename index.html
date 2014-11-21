@@ -219,6 +219,11 @@ function load(data)
 			}
 		},
 		xAxis: {
+			labels: {
+				style: {
+					fontWeight: "bold"
+				}
+			},
 			events: {
 				afterSetExtremes: zoom
 			},
@@ -230,35 +235,30 @@ function load(data)
 			spacingTop: 0,
 			spacingRight: 1,
 			spacingLeft: 1,
-			alignTicks: false,
 			zoomType: "x",
 			animation: false
 		},
 		yAxis: [{
 			labels: {
+				style: {
+					fontWeight: "bold"
+				},
 				format: "{value}%",
 				align: "right",
 				x: 0
 			},
-			minorTickInterval: "auto",
-			showLastLabel: true,
-			startOnTick: false,
-			endOnTick: false
+			minorTickInterval: "auto"
 		}, {
-			showLastLabel: true,
-			startOnTick: false,
-			endOnTick: false,
 			labels: {
 				format: "{value}\u2031",
 				style: {
-					color: "chocolate"
+					fontWeight: "bold"
 				},
 				align: "left",
 				x: 0
 			},
 			opposite: false,
-			gridLineDashStyle: "Dash",
-			gridLineColor: "chocolate",
+			gridLineWidth: 0,
 			offset: 0
 		}],
 		rangeSelector: {
