@@ -123,6 +123,11 @@ function addpoint(time, entry)
 	}
 }
 
+function zoom(range)
+{
+	localStorage[key + ">"] = JSON.stringify(range.min);
+}
+
 function load(data)
 {
 	var date = new Date();
@@ -217,6 +222,9 @@ function load(data)
 			}
 		},
 		xAxis: {
+			events: {
+				afterSetExtremes: zoom
+			},
 			min: since,
 			minTickInterval: 6e4,
 			ordinal: false
@@ -308,7 +316,7 @@ function main()
 
 	key = location.href;
 
-	since = parseFloat(localStorage["since:" + key]);
+	since = parseFloat(localStorage[key + ">"]);
 	if (!since)
 		since = undefined;
 
