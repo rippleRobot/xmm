@@ -18,7 +18,7 @@
 <script src="http://code.highcharts.com/stock/highstock.js"></script>
 
 <script>
-var init = {};
+var assets = {};
 var series = [];
 var table, template, log, cutoff, from, key, fresh, since;
 
@@ -75,12 +75,12 @@ function addrow(entry)
 	fresh = fresh.add(row);
 }
 
-function addasset(price, unit)
+function addasset(unit)
 {
-	var i = init[unit];
+	var i = assets[unit];
 
 	if (i)
-		return i.index;
+		return i;
 
 	i = series.length;
 
@@ -93,17 +93,12 @@ function addasset(price, unit)
 			radius: 3
 		},
 		tooltip: {
-			valueDecimals: 2,
-			valueSuffix: "%"
+			valueDecimals: 3
 		},
 		data: []
 	});
 
-	init[unit] = {
-		index: i,
-		price: price
-	};
-
+	assets[unit] = i;
 	return i;
 }
 
@@ -115,11 +110,10 @@ function addpoint(time, entry)
 	series[0].data.push([time, entry.growth]);
 
 	for (unit in dict) {
-		var p1 = dict[unit];
-		var i = addasset(p1, unit);
-		var p0 = init[unit].price;
+		var price = dict[unit];
+		var i = addasset(unit);
 
-		series[i].data.push([time, 100 * p1 / p0]);
+		series[i].data.push([time, 1 / price]);
 	}
 }
 
@@ -176,7 +170,7 @@ function load(data)
 		addrow({
 			index: i.toFixed(0),
 			seq: last.seq.toFixed(0),
-			iou: last.iou.toFixed(0),
+			iou: last.iou.toFixed(3),
 			growth: last.growth.toFixed(2) + "\u2031",
 			since: last.since.toFixed(0) + " min",
 			value: last.value.toFixed(2) + "%",
@@ -218,7 +212,7 @@ function load(data)
 				}
 			},
 			spline: {
-				compare: "value"
+				compare: "percent"
 			},
 			column: {
 				color: "chocolate"
