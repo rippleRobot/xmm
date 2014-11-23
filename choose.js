@@ -1,7 +1,7 @@
 function choose(offers, prev, saldo, stake)
 {
-	var issued = {};
-	var pending = {};
+	var good = {};
+	var fair = {};
 	var nassets = 0;
 	var pair, unit;
 
@@ -51,13 +51,21 @@ function choose(offers, prev, saldo, stake)
 		return v1 / v0 - 1;
 	}
 
-	function worth(offer, old, pair)
+	function top(dict)
 	{
-		var p0 = profit(old, pair, false);
-		var p1 = profit(offer, pair, true);
-		var delta = diff(offer, old);
+		var high = 0;
+		var pair, best;
 
-		return (stake < delta) || (p0 < p1);
+		for (pair in dict) {
+			var rating = dict[pair];
+
+			if (high < rating) {
+				high = rating;
+				best = pair;
+			}
+		}
+
+		return best;
 	}
 
 	for (unit in saldo)
@@ -65,26 +73,23 @@ function choose(offers, prev, saldo, stake)
 			++nassets;
 
 	for (pair in offers) {
+		var old = prev[pair];
 		var offer = offers[pair];
-		var units = pair.split(">");
-		var base = units.shift();
-		var counter = units.shift();
+		var p0 = profit(old, pair, false);
+		var p1 = profit(offer, pair, true);
+		var delta = diff(offer, old);
 
-		if ((saldo[base] < 0) || (saldo[counter] < 0))
-			issued[pair] = offer;
-		else if (0 < profit(prev[pair], pair, false))
-			pending[pair] = offer;
-		else
-			return pair;
+		good[pair] = p1 - p0;
+		fair[pair] = delta - stake;
 	}
 
-	for (pair in pending)
-		if (worth(pending[pair], prev[pair], pair))
-			return pair;
+	good = top(good);
+	if (good)
+		return good;
 
-	for (pair in issued)
-		if (worth(issued[pair], prev[pair], pair))
-			return pair;
+	fair = top(fair);
+	if (fair)
+		return fair;
 }
 
 function decide(offers, prev, saldo, stake)
