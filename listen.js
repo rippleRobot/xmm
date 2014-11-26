@@ -39,7 +39,7 @@ function listen()
 }
 
 setInterval(request, 6e4);
-setInterval(check, 3e5);
+setInterval(check, 6e4);
 account.on("transaction", request);
 process.on("update", update);
 
