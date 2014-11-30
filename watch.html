@@ -358,6 +358,8 @@ function tick()
 
 function main()
 {
+	$("h1").text(id);
+
 	table = $("table");
 	header = $("tr");
 	state = $("td");
@@ -377,7 +379,9 @@ $(main);
 
 <body>
 <div class="container-fluid">
-<div class="page-header"></div>
+<div class="page-header">
+<h1></h1>
+</div>
 
 <table class="table table-bordered">
 <tr>
