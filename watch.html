@@ -219,6 +219,7 @@ function ispair(pair)
 
 function show(saldo, offers)
 {
+	var date = new Date();
 	var nassets = 0;
 	var unit, pair;
 
@@ -313,6 +314,7 @@ function show(saldo, offers)
 
 	state.removeClass();
 	state.addClass("info");
+	state.data("time", date.getTime());
 	listen();
 }
 
@@ -336,6 +338,24 @@ function listen()
 		request();
 }
 
+function tick()
+{
+	var date = new Date();
+	var last = state.data("time");
+
+	if (last) {
+		var since = date.getTime() - last;
+
+		if (60 * 60e3 < since)
+			location.reload();
+
+		since = new Date(since);
+		since = since.toISOString();
+		since = since.replace(/^.*T..:(..:..).*$/, "$1");
+		state.text(since);
+	}
+}
+
 function main()
 {
 	table = $("table");
@@ -346,6 +366,7 @@ function main()
 	template.row = header.clone();
 	template.cell = template.row.children("td").detach();
 
+	setInterval(tick, 1e3);
 	account.on("transaction", request);
 	remote.connect(listen);
 }
