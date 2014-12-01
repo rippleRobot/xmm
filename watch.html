@@ -302,7 +302,6 @@ function show(saldo, offers)
 			change = "\u25CF";
 		}
 
-		cell.addClass("text-right");
 		cell.text(change + " " + balance.toPrecision(6));
 		cell.data("balance", balance);
 	}
@@ -403,13 +402,13 @@ $(main);
 <body>
 <div class="container-fluid">
 <div class="page-header">
-<h1></h1>
+<h1 class="text-center"></h1>
 </div>
 
-<table class="table table-bordered">
+<table class="table table-bordered text-center">
 <tr>
 <td></td>
-<th>XRP</th>
+<th class="text-center">XRP</th>
 </tr>
 </table>
 </div>
