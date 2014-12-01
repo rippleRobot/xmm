@@ -12,6 +12,10 @@
 table {
 	table-layout: fixed;
 }
+
+.update {
+	text-shadow: 0px 0px 1px;
+}
 </style>
 
 <script src="http://code.jquery.com/jquery.js"></script>
@@ -32,12 +36,11 @@ var units = {};
 var template = {};
 var pending = true;
 var ready = false;
-var ledger, saldo, table, header, state;
+var ledger, saldo, offers, table, header, state;
 
 function start()
 {
-	state.removeClass();
-	state.addClass("active");
+	state.addClass("info");
 	remote.once("ledger_closed", getsaldo);
 }
 
@@ -102,7 +105,6 @@ function setlines(error, response)
 
 function update(error, response)
 {
-	var offers = {};
 	var list, i;
 
 	function getunit(amount)
@@ -130,6 +132,8 @@ function update(error, response)
 		return start();
 	}
 
+	offers = {};
+
 	list = response.offers;
 	for (i = 0; i < list.length; i++) {
 		var offer = list[i];
@@ -147,7 +151,7 @@ function update(error, response)
 		};
 	}
 
-	show(saldo, offers);
+	show();
 }
 
 function addunit(unit)
@@ -223,7 +227,31 @@ function ispair(pair)
 	return false;
 }
 
-function show(saldo, offers)
+function appear()
+{
+	var cell = $(this);
+
+	cell.removeClass();
+	cell.addClass(cell.data("class"));
+	cell.text(cell.data("update"));
+	cell.fadeIn();
+}
+
+function replace(cell)
+{
+	var src = cell.text();
+	var dst = cell.data("update");
+
+	if (src == dst)
+		return;
+
+	if (src)
+		cell.addClass("update").delay(2e3).fadeOut(appear);
+	else
+		appear.call(cell);
+}
+
+function show()
 {
 	var date = new Date();
 	var nassets = 0;
@@ -298,21 +326,21 @@ function show(saldo, offers)
 		if (balance == prev)
 			continue;
 
-		cell.removeClass();
+		cell.data("balance", balance);
 
 		if (prev < balance) {
-			cell.addClass("text-success");
+			cell.data("class", "text-success");
 			change = "\u25B2";
 		} else if (balance < prev) {
-			cell.addClass("text-danger");
+			cell.data("class", "text-danger");
 			change = "\u25BC";
 		} else {
-			cell.addClass("text-warning");
+			cell.data("class", "text-warning");
 			change = "\u25CF";
 		}
 
-		cell.text(change + " " + balance.toPrecision(6));
-		cell.data("balance", balance);
+		cell.data("update", change + " " + balance.toPrecision(6));
+		replace(cell);
 	}
 
 	for (pair in pairs) {
@@ -326,26 +354,27 @@ function show(saldo, offers)
 		if (!ispair(pair))
 			continue;
 
-		cell.removeClass();
+		cell.data("seq", seq);
 
 		if (prev < seq)
-			cell.addClass("info");
+			cell.data("class", "info");
 		else if (0 < growth)
-			cell.addClass("success");
+			cell.data("class", "success");
 		else if (growth < 0)
-			cell.addClass("danger");
+			cell.data("class", "danger");
 		else
-			cell.addClass("warning");
+			cell.data("class", "warning");
 
 		growth = growth.toFixed(2) + "\u2031";
 		delta = delta.toFixed(2) + "%";
-		cell.text(growth + ", " + delta);
-		cell.data("seq", seq);
+
+		cell.data("update", growth + ", " + delta);
+		replace(cell);
 	}
 
 	state.removeClass();
-	state.addClass("info");
 	state.data("time", date.getTime());
+	table.removeClass("hidden");
 	listen();
 }
 
@@ -414,7 +443,7 @@ $(main);
 <h1 class="text-center"></h1>
 </div>
 
-<table class="table table-bordered text-center">
+<table class="table table-bordered text-center hidden">
 <tr>
 <td></td>
 <th class="text-center">XRP</th>
