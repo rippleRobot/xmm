@@ -70,6 +70,9 @@ function compute(saldo, prev)
 	var nassets = 0;
 	var unit, i;
  
+	if (stake < 0.01)
+		stake = 0.01;
+
 	for (unit in saldo)
 		if (0 < saldo[unit])
 			++nassets;
