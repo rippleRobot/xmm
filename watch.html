@@ -278,10 +278,33 @@ function show(saldo, offers)
 	}
 
 	for (unit in saldo) {
+		var balance = saldo[unit];
+		var cell, prev, change;
+
 		addunit(unit);
 
-		if (0 < saldo[unit])
+		if (0 < balance)
 			++nassets;
+
+		cell = pairs[unit + ">" + unit];
+		cell.removeClass();
+
+		prev = parseFloat(cell.data("balance"));
+
+		if (prev < balance) {
+			cell.addClass("text-success");
+			change = "\u25B2";
+		} else if (balance < prev) {
+			cell.addClass("text-danger");
+			change = "\u25BC";
+		} else {
+			cell.addClass("text-warning");
+			change = "\u25CF";
+		}
+
+		cell.addClass("text-right");
+		cell.text(change + " " + balance.toPrecision(6));
+		cell.data("balance", balance);
 	}
 
 	for (pair in pairs) {
