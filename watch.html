@@ -287,9 +287,12 @@ function show(saldo, offers)
 			++nassets;
 
 		cell = pairs[unit + ">" + unit];
-		cell.removeClass();
-
 		prev = parseFloat(cell.data("balance"));
+
+		if (balance == prev)
+			continue;
+
+		cell.removeClass();
 
 		if (prev < balance) {
 			cell.addClass("text-success");
