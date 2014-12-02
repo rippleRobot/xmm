@@ -366,9 +366,9 @@ function show()
 			cell.data("class", "warning");
 
 		growth = growth.toFixed(2) + "\u2031";
-		delta = delta.toFixed(2) + "%";
+		delta = "(" + delta.toFixed(1) + "%)";
 
-		cell.data("update", growth + ", " + delta);
+		cell.data("update", growth + " " + delta);
 		replace(cell);
 	}
 
