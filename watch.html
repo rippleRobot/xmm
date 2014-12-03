@@ -406,12 +406,9 @@ function tick()
 	if (last) {
 		var since = date.getTime() - last;
 
-		if (60 * 60e3 < since)
-			location.reload();
-
 		since = new Date(since);
 		since = since.toISOString();
-		since = since.replace(/^.*T..:(..:..).*$/, "$1");
+		since = since.replace(/^.*T(..:..:..).*$/, "$1");
 		state.text(since);
 	}
 }
