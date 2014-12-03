@@ -155,13 +155,14 @@ function load(data)
 		var prev = log[cutoff == i ? i : i - 1];
 		var last = log[i];
 		var time = last.time;
+		var gain = growth(prev, last);
 
-		last.value = prev.value * growth(prev, last);
+		last.value = prev.value * gain;
 		last.date = new Date(last.time);
 		last.time /= 6e4;
 		last.interest = 100 * interest(i);
 		last.since = last.time - prev.time;
-		last.growth = 100 * (last.value - prev.value);
+		last.growth = 1e4 * (gain - 1);
 
 		addpoint(time, last);
 
