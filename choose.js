@@ -80,7 +80,7 @@ function choose(offers, prev, saldo, stake)
 		var delta = diff(offer, old);
 
 		good[pair] = p1 - p0;
-		fair[pair] = delta - stake;
+		fair[pair] = delta - 2 * stake * (Math.sqrt(2) - 1);
 	}
 
 	good = top(good);
