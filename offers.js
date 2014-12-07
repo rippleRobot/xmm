@@ -87,15 +87,11 @@ function compute(saldo, prev)
 		var dst = saldo[counter];
 		var old = prev[pair];
  
-		if (src < 0) {
-			src = -src;
-			dst *= nassets;
-		}
+		if (src < 0)
+			src /= -nassets;
 
-		if (dst < 0) {
-			src *= nassets;
-			dst = -dst;
-		}
+		if (dst < 0)
+			dst /= -nassets;
 
 		offer.src = stake * src / (1 + stake);
 		offer.dst = stake * dst / (1 - stake);

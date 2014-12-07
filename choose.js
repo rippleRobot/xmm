@@ -32,15 +32,11 @@ function choose(offers, prev, saldo, stake)
 		counter = pair.shift();
 		counter = saldo[counter];
 
-		if (base < 0) {
-			src = -src;
-			dst /= nassets;
-		}
+		if (base < 0)
+			src *= -nassets;
 
-		if (counter < 0) {
-			src /= nassets;
-			dst = -dst;
-		}
+		if (counter < 0)
+			dst *= -nassets;
 
 		v0 = base * counter;
 		v1 = (base - src) * (counter + dst);
