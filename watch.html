@@ -28,8 +28,8 @@ table {
 <script>
 var remote = new ripple.Remote({
 	servers: [
-		'wss://s-east.ripple.com:443',
-		'wss://s-west.ripple.com:443'
+		"wss://s-east.ripple.com:443",
+		"wss://s-west.ripple.com:443"
 	],
 	trusted: false
 });
@@ -413,6 +413,13 @@ function tick()
 	}
 }
 
+function getstats(list)
+{
+	var head = list.shift();
+
+	console.log(list);
+}
+
 function main()
 {
 	$("h1").text(id);
@@ -428,6 +435,10 @@ function main()
 	setInterval(tick, 1e3);
 	account.on("transaction", request);
 	remote.connect(listen);
+
+	$.post("http://api.ripplecharts.com/api/account_offers_exercised", {
+		account: id
+	}, getstats);
 }
 
 $(main);
