@@ -13,8 +13,6 @@ function ispair(src, dst)
 	if (id == dst.issuer)
 		return false;
 
-	if (src.currency == dst.currency)
-		return true;
 	if (src.issuer == dst.issuer)
 		return true;
  
