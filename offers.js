@@ -1,3 +1,13 @@
+function isfiat(currency)
+{
+	if ("USD" == currency)
+		return true;
+	else if ("EUR" == currency)
+		return true;
+	else
+		return false;
+}
+
 function ispair(src, dst)
 {
 	if (src.unit == dst.unit)
@@ -13,6 +23,8 @@ function ispair(src, dst)
 	if (id == dst.issuer)
 		return false;
 
+	if (isfiat(src.currency) && isfiat(dst.currency))
+		return false;
 	if (src.issuer == dst.issuer)
 		return true;
  
