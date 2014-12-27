@@ -38,6 +38,7 @@ var account = remote.account(id);
 var pairs = {};
 var units = {};
 var template = {};
+var stats = {};
 var pending = true;
 var ready = false;
 var ledger, saldo, offers, table, header, state;
@@ -413,11 +414,48 @@ function tick()
 	}
 }
 
+function currency(dict, type)
+{
+	var unit = dict[type + "Currency"];
+	var issuer = dict[type + "Issuer"];
+
+	if (issuer)
+		unit += ":" + issuer;
+
+	return unit;
+}
+
 function getstats(list)
 {
-	var head = list.shift();
+	var fields = list.shift();
+	var nfields = fields.length;
+	var n = list.length;
+	var i, j;
 
-	console.log(list);
+	for (i = 0; i < n; i++) {
+		var entry = list[i];
+		var dict = {};
+		var pair = [];
+
+		for (j = 0; j < nfields; j++) {
+			var name = fields[j];
+
+			dict[name] = entry[j];
+		}
+
+		list[i] = dict;
+
+		pair.push(currency(dict, "base"));
+		pair.push(currency(dict, "counter"));
+		pair = pair.sort().join("/");
+
+		if (stats[pair])
+			++stats[pair];
+		else
+			stats[pair] = 1;
+	}
+
+	console.log(stats);
 }
 
 function main()
