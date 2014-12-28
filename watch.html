@@ -23,6 +23,7 @@ table {
 </style>
 
 <script src="http://code.jquery.com/jquery.js"></script>
+<script src="http://code.highcharts.com/highcharts.js"></script>
 <script src="node_modules/ripple-lib/build/ripple-0.9.1-min.js"></script>
 
 <script>
@@ -38,7 +39,6 @@ var account = remote.account(id);
 var pairs = {};
 var units = {};
 var template = {};
-var stats = {};
 var pending = true;
 var ready = false;
 var ledger, saldo, offers, table, header, state;
@@ -432,7 +432,7 @@ function currency(dict, type)
 	if (issuer)
 		unit += ":" + issuer;
 
-	return unit;
+	return unit.replace(/^(...:....).*$/, "$1\u2026");
 }
 
 function getstats(list)
@@ -440,12 +440,14 @@ function getstats(list)
 	var fields = list.shift();
 	var nfields = fields.length;
 	var n = list.length;
-	var i, j;
+	var stats = {};
+	var data = [];
+	var format = "{point.name}: {point.percentage:.1f}%";
+	var i, j, pair;
 
 	for (i = 0; i < n; i++) {
 		var entry = list[i];
 		var dict = {};
-		var pair = [];
 
 		for (j = 0; j < nfields; j++) {
 			var name = fields[j];
@@ -455,9 +457,10 @@ function getstats(list)
 
 		list[i] = dict;
 
-		pair.push(currency(dict, "base"));
-		pair.push(currency(dict, "counter"));
-		pair = pair.sort().join("/");
+		pair = [
+			currency(dict, "base"),
+			currency(dict, "counter")
+		].sort().join("/");
 
 		if (stats[pair])
 			++stats[pair];
@@ -465,7 +468,38 @@ function getstats(list)
 			stats[pair] = 1;
 	}
 
-	console.log(stats);
+	for (pair in stats) {
+		var part = 100 * stats[pair] / n;
+
+		data.push([
+			pair,
+			part
+		]);
+	}
+
+	$("div.chart").highcharts({
+		title: null,
+		tooltip: {
+			enabled: false
+		},
+		plotOptions: {
+			pie: {
+				allowPointSelect: true,
+				dataLabels: {
+					format: format,
+					style: {
+						fontWeight: "bold"
+					}
+				},
+				innerSize: "50%",
+				size: "100%"
+			}
+		},
+		series: [{
+			type: "pie",
+			data: data
+		}]
+	});
 }
 
 function main()
