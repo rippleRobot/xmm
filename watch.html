@@ -470,6 +470,9 @@ function getstats(list)
 
 function main()
 {
+	var old = new Date(0);
+	var now = new Date();
+
 	$("h1").text(id);
 
 	table = $("table");
@@ -485,6 +488,9 @@ function main()
 	remote.connect(listen);
 
 	$.post("http://api.ripplecharts.com/api/account_offers_exercised", {
+		descending: true,
+		startTime: old.toISOString(),
+		endTime: now.toISOString(),
 		account: id
 	}, getstats);
 }
