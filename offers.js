@@ -76,13 +76,12 @@ function compute(saldo, prev)
 	var offers = {};
 	var pairs = getpairs(saldo);
 	var npairs = pairs.length;
-	var stake = 2 * Math.sqrt(npairs * fee / saldo["XRP"]);
+	var cost = npairs * fee / saldo["XRP"];
+	var margin = 1e-4;
+	var stake = Math.sqrt(margin + cost);
 	var nassets = 0;
 	var unit, i;
  
-	if (stake < 0.01)
-		stake = 0.01;
-
 	for (unit in saldo)
 		if (0 < saldo[unit])
 			++nassets;
@@ -112,7 +111,7 @@ function compute(saldo, prev)
 		offers[pair] = offer;
 	}
 
-	process.emit("offers", offers, prev, saldo, stake);
+	process.emit("offers", offers, prev, saldo, stake, cost);
 }
 
 process.on("update", compute);

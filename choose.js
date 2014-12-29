@@ -1,4 +1,4 @@
-function choose(offers, prev, saldo, stake)
+function choose(offers, prev, saldo, stake, cost)
 {
 	var good = {};
 	var fair = {};
@@ -42,7 +42,7 @@ function choose(offers, prev, saldo, stake)
 		v1 = (base - src) * (counter + dst);
 
 		if (reset)
-			v1 *= 1 - Math.pow(stake / 2, 2);
+			v1 *= 1 - cost;
 
 		return v1 / v0 - 1;
 	}
@@ -88,9 +88,9 @@ function choose(offers, prev, saldo, stake)
 		return fair;
 }
 
-function decide(offers, prev, saldo, stake)
+function decide(offers, prev, saldo, stake, cost)
 {
-	var pair = choose(offers, prev, saldo, stake);
+	var pair = choose(offers, prev, saldo, stake, cost);
 	var unit;
 
 	if (!pair) {
