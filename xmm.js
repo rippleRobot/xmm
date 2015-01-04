@@ -32,7 +32,7 @@ function debug(data)
 		depth: 10
 	};
 	var str = util.inspect(data, options);
- 
+
 	util.error(str);
 }
 

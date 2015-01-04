@@ -58,7 +58,7 @@ function log(saldo, offers)
 
 	if (!prev)
 		prev = 0;
-	
+
 	if (prev < seq)
 		save(entry);
 

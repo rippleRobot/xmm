@@ -67,7 +67,7 @@ function ispair(src, dst)
 {
 	if (src.unit == dst.unit)
 		return false;
- 
+
 	if ("XRP" == src.currency)
 		return true;
 	if ("XRP" == dst.currency)
@@ -82,38 +82,38 @@ function ispair(src, dst)
 		return false;
 	if (src.issuer == dst.issuer)
 		return true;
- 
+
 	return false;
 }
- 
+
 function getpairs(saldo)
 {
 	var list = [];
 	var base, unit, i;
- 
+
 	for (base in saldo) {
 		var src = {};
 		var counter;
- 
+
 		unit = base.split(":");
 		src.currency = unit.shift();
 		src.issuer = unit.shift();
 		src.unit = base;
- 
+
 		for (counter in saldo) {
 			var dst = {};
 			var pair = base.concat(">", counter);
- 
+
 			unit = counter.split(":");
 			dst.currency = unit.shift();
 			dst.issuer = unit.shift();
 			dst.unit = counter;
- 
+
 			if (ispair(src, dst))
 				list.push(pair);
 		}
 	}
- 
+
 	for (i = list.length - 1; 0 < i; i--) {
 		var j = Math.floor(Math.random() * (i + 1));
 		var tmp;
@@ -136,7 +136,7 @@ function compute(saldo, prev)
 	var stake = Math.sqrt(margin + cost);
 	var nassets = 0;
 	var unit, i;
- 
+
 	for (unit in saldo)
 		if (0 < saldo[unit])
 			++nassets;
@@ -150,7 +150,7 @@ function compute(saldo, prev)
 		var src = saldo[base];
 		var dst = saldo[counter];
 		var old = prev[pair];
- 
+
 		if (src < 0)
 			src /= -nassets;
 

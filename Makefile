@@ -6,7 +6,7 @@ all: xmm.js $(RIPPLE_LIB) stop
 	fi
 	nohup node xmm.js >full.log 2>&1 & echo $$! >daemon.pid
 	sleep 1
- 
+
 $(RIPPLE_LIB):
 	npm install ripple-lib@0.9.1
 
