@@ -1,3 +1,58 @@
+var i1mago = -1;
+
+function monthago()
+{
+	var date = new Date();
+	var now = date.getTime();
+	var t1mago = now - 24 * 60 * 60e3 * 365.25 / 12;
+	var len = history.length;
+	var i;
+
+	for (i = i1mago + 1; i < len; i++) {
+		var entry = history[i];
+		var time = entry.time;
+
+		if (time < t1mago)
+			i1mago = i;
+		else
+			break;
+	}
+
+	return i1mago;
+}
+
+function growth(src, dst)
+{
+	var k = 1;
+	var n = 0;
+	var p0 = src.prices;
+	var p1 = dst.prices;
+	var unit;
+
+	for (unit in p1) {
+		var prev = p0[unit];
+		var last = p1[unit];
+
+		if (prev) {
+			k *= last / prev;
+			++n;
+		}
+	}
+
+	return Math.pow(k, 1 / n) - 1;
+}
+
+function optimize(cost)
+{
+	var src = history[monthago()];
+	var dst = history[history.length - 1];
+
+	if (src && dst)
+		return Math.pow(growth(src, dst) / 2, 2);
+	else
+		return 3 * cost;
+}
+
 function isfiat(currency)
 {
 	if ("USD" == currency)
@@ -77,7 +132,7 @@ function compute(saldo, prev)
 	var pairs = getpairs(saldo);
 	var npairs = pairs.length;
 	var cost = npairs * fee / saldo["XRP"];
-	var margin = 1e-4;
+	var margin = optimize(cost);
 	var stake = Math.sqrt(margin + cost);
 	var nassets = 0;
 	var unit, i;
