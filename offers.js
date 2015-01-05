@@ -1,4 +1,4 @@
-var i1mago = -1;
+var i1mago = 0;
 
 function monthago()
 {
@@ -25,9 +25,13 @@ function growth(src, dst)
 {
 	var k = 1;
 	var n = 0;
-	var p0 = src.prices;
-	var p1 = dst.prices;
-	var unit;
+	var unit, p0, p1;
+
+	if (!src || !dst)
+		return 0;
+
+	p0 = src.prices;
+	p1 = dst.prices;
 
 	for (unit in p1) {
 		var prev = p0[unit];
@@ -46,11 +50,12 @@ function optimize(cost)
 {
 	var src = history[monthago()];
 	var dst = history[history.length - 1];
+	var margin = Math.pow(growth(src, dst) / 4, 2);
 
-	if (src && dst)
-		return Math.pow(growth(src, dst) / 2, 2);
+	if (cost < margin)
+		return margin;
 	else
-		return 3 * cost;
+		return cost;
 }
 
 function isfiat(currency)
