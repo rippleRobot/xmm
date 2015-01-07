@@ -470,11 +470,13 @@ function getstats(list)
 
 	for (pair in stats) {
 		var part = 100 * stats[pair] / n;
-
-		data.push([
+		var entry = [
 			pair,
 			part
-		]);
+		];
+
+		if (1 < part)
+			data.unshift(entry);
 	}
 
 	$("div.chart").highcharts({
