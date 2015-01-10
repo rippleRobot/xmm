@@ -39,6 +39,8 @@ var options = {
 var remote = new ripple.Remote(options);
 var id = location.search.replace("?", "");
 var account = remote.account(id);
+var fee = options.max_fee / 1e6;
+var round = {};
 var pairs = {};
 var paths = {};
 var units = {};
@@ -55,6 +57,7 @@ function start()
 		ws[target].disconnect();
 
 	ws = {};
+	round = {};
 
 	state.addClass("info");
 	remote.once("ledger_closed", getsaldo);
@@ -317,37 +320,89 @@ function getprice(src, dst)
 	return price.toPrecision(6) + " " + unit;
 }
 
+function getround(pair)
+{
+	var orig = pair.split(">").sort().join("/");
+
+	return round[orig];
+}
+
 function display()
 {
 	var date = new Date();
 	var pair;
 
 	for (pair in paths) {
-		var riap = pair.split(">").reverse().join(">");
-		var back = paths[riap];
-		var path = paths[pair];
+		var stats = getround(pair);
+		var human = paths[pair].human;
 		var cell = pairs[pair];
+		var profit, since;
 
-		if (back) {
-			var p0 = path.price;
-			var p1 = back.price;
-			var profit = p0 * p1 - 1;
-			var time = Math.min(path.time, back.time);
-			var since = date.getTime() - time;
+		cell.removeClass();
 
-			cell.removeClass();
-			if (5e3 < since)
-				cell.addClass("warning");
-			else if (0 < profit)
-				cell.addClass("success");
-			else
-				cell.addClass("danger");
-
-			profit *= 100;
-			profit = "(" + profit.toFixed(1) + "%)";
-			cell.text(path.human + " " + profit);
+		if (!stats) {
+			cell.text("");
+			continue;
 		}
+
+		profit = 100 * stats.profit;
+		since = date.getTime() - stats.time;
+
+		if (5e3 < since)
+			cell.addClass("warning");
+		else if (0 < profit)
+			cell.addClass("success");
+		else
+			cell.addClass("danger");
+
+		profit = "(" + profit.toFixed(1) + "%)";
+		cell.text(human + " " + profit);
 	}
+}
+
+function judge(pair)
+{
+	var orig = pair.split(">").sort().join("/");
+	var riap = pair.split(">").reverse().join(">");
+	var path = paths[pair];
+	var back = paths[riap];
+	var stats = round[orig];
+	var drop = 1 - 2 * fee / saldo["XRP"];
+	var p0, p1, profit, prev, count, avg, ema;
+
+	if (!path || !back)
+		return;
+
+	p0 = drop * path.price;
+	p1 = drop * back.price;
+	profit = p0 * p1 - 1;
+
+	if (stats) {
+		count = stats.count;
+		avg = stats.avg;
+		ema = stats.ema;
+	} else {
+		count = 0;
+		avg = profit;
+		ema = profit;
+
+		stats = {};
+		round[orig] = stats;
+	}
+
+	prev = count;
+	++count;
+	avg = (prev * avg + profit) / count;
+	ema = (ema + profit) / 2;
+
+	if (20 < count)
+		count = 20;
+
+	stats.count = count;
+	stats.avg = avg;
+	stats.ema = ema;
+	stats.profit = profit;
+	stats.time = Math.min(path.time, back.time);
 }
 
 function update(data)
@@ -358,6 +413,8 @@ function update(data)
 	var dst = convert(amount);
 	var n = alt.length;
 	var i;
+
+	ws[dst.currency].time = date.getTime();
 
 	for (i = 0; i < n; i++) {
 		var path = alt[i];
@@ -374,6 +431,8 @@ function update(data)
 				cost: cost,
 				amount: amount
 			};
+
+			judge(pair);
 
 			if ("XRP" == dst.currency)
 				find(cost);
@@ -413,6 +472,51 @@ function listen()
 		request();
 }
 
+function estimate(stats)
+{
+	var date = new Date();
+	var since = date.getTime() - stats.time;
+	var count = stats.count;
+	var profit = stats.profit;
+	var ema = stats.ema;
+	var avg = stats.avg;
+
+	if (5e3 < since)
+		return -1;
+	else if (count < 10)
+		return -1;
+	else if (profit <= 0)
+		return profit;
+	else if (ema <= 0)
+		return ema;
+	else
+		return (avg + ema) / 2;
+}
+
+function choose()
+{
+	var pair;
+
+	for (pair in round) {
+		var stats = round[pair];
+		var gain = 100 * estimate(stats);
+		var human = gain.toFixed(2);
+
+		console.log("%s: %s%%", pair, human);
+	}
+}
+
+function watchdog()
+{
+	var date = new Date();
+	var now = date.getTime();
+	var socket;
+
+	for (socket in ws)
+		if (1e4 < now - ws[socket].time)
+			return request();
+}
+
 function tick()
 {
 	var date = new Date();
@@ -426,6 +530,9 @@ function tick()
 		since = since.replace(/^.*T(..:..:..).*$/, "$1");
 		state.text(since);
 	}
+
+	console.info(choose());
+	watchdog();
 
 	display();
 }
