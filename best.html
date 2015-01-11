@@ -47,6 +47,7 @@ var units = {};
 var template = {};
 var pending = true;
 var ready = false;
+var busy = 0;
 var ledger, saldo, table, header, state, ws;
 
 function start()
@@ -130,7 +131,36 @@ function pay(path)
 	return tx;
 }
 
-function trade()
+function trade(orig)
+{
+	var pair = orig.split("/").join(">");
+	var riap = orig.split("/").reverse().join(">");
+	var path = paths[pair];
+	var back = paths[riap];
+	var buy = pay(path);
+	var sell = pay(back);
+
+	function log(error, response)
+	{
+		console.log(error, response);
+
+		--busy;
+		if (busy < 0)
+			busy = 0;
+
+		if (!busy)
+			request();
+	}
+
+	if (0 < busy)
+		return;
+
+	busy += 2;
+	buy.submit(log);
+	sell.submit(log);
+}
+
+function trigger()
 {
 	var cell = $(this);
 	var pair = cell.data("pair");
@@ -144,19 +174,9 @@ function trade()
 		path.human,
 		back.human
 	].join(", "));
-	var buy = pay(path);
-	var sell = pay(back);
 
-	function log(error, response)
-	{
-		console.log(error, response);
-	}
-
-	if (!sure)
-		return;
-
-	buy.submit(log);
-	sell.submit(log);
+	if (sure)
+		trade(orig);
 }
 
 function addunit(unit)
@@ -182,7 +202,7 @@ function addunit(unit)
 
 		if (unit != dst) {
 			cell.data("pair", pair);
-			cell.click(trade);
+			cell.click(trigger);
 		}
 	}
 
@@ -196,7 +216,7 @@ function addunit(unit)
 
 		if (unit != src) {
 			cell.data("pair", pair);
-			cell.click(trade);
+			cell.click(trigger);
 		}
 	}
 }
@@ -369,7 +389,7 @@ function judge(pair)
 	var path = paths[pair];
 	var back = paths[riap];
 	var stats = round[orig];
-	var drop = 1 - 2 * fee / saldo["XRP"];
+	var drop = 1 - 4 * fee / saldo["XRP"];
 	var p0, p1, profit, prev, count, avg, ema;
 
 	if (!path || !back)
@@ -517,15 +537,8 @@ function choose()
 		return best;
 	}
 
-	for (pair in round) {
-		var gain = estimate(round[pair]);
-
-		good[pair] = gain;
-
-		gain *= 100;
-		gain = gain.toFixed(2);
-		console.log("%s: %s%%", pair, gain);
-	}
+	for (pair in round)
+		good[pair] = estimate(round[pair]);
 
 	return top(good);
 }
@@ -545,6 +558,7 @@ function tick()
 {
 	var date = new Date();
 	var last = state.data("time");
+	var best = choose();
 
 	if (last) {
 		var since = date.getTime() - last;
@@ -555,7 +569,11 @@ function tick()
 		state.text(since);
 	}
 
-	console.info(choose());
+	if (best) {
+		console.info(best, round[best]);
+		trade(best);
+	}
+
 	watchdog();
 
 	display();
