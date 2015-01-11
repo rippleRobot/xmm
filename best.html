@@ -495,15 +495,37 @@ function estimate(stats)
 
 function choose()
 {
+	var good = {};
 	var pair;
 
-	for (pair in round) {
-		var stats = round[pair];
-		var gain = 100 * estimate(stats);
-		var human = gain.toFixed(2);
+	function top(dict)
+	{
+		var high = 0;
+		var pair, best;
 
-		console.log("%s: %s%%", pair, human);
+		for (pair in dict) {
+			var rating = dict[pair];
+
+			if (high < rating) {
+				high = rating;
+				best = pair;
+			}
+		}
+
+		return best;
 	}
+
+	for (pair in round) {
+		var gain = estimate(round[pair]);
+
+		good[pair] = gain;
+
+		gain *= 100;
+		gain = gain.toFixed(2);
+		console.log("%s: %s%%", pair, gain);
+	}
+
+	return top(good);
 }
 
 function watchdog()
