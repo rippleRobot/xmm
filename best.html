@@ -118,7 +118,7 @@ function setlines(error, response)
 	show();
 }
 
-function pay(path, key)
+function pay(path)
 {
 	var tx = remote.transaction();
 
@@ -126,7 +126,6 @@ function pay(path, key)
 	tx.paths(path.alt);
 	tx.sendMax(path.cost);
 	tx.set_flags("PartialPayment");
-	tx.secret(key);
 
 	return tx;
 }
@@ -137,20 +136,23 @@ function trade()
 	var pair = cell.data("pair");
 	var riap = pair.split(">").reverse().join(">");
 	var path = paths[pair];
+	var orig = pair.split(">").sort().join("/");
+	var profit = 100 * round[orig].profit;
 	var back = paths[riap];
-	var key = prompt([
-		cell.text(),
-		pairs[riap].text()
-	].join("\n"));
-	var buy = pay(path, key);
-	var sell = pay(back, key);
+	var sure = confirm([
+		profit.toFixed(2) + "%",
+		path.human,
+		back.human
+	].join(", "));
+	var buy = pay(path);
+	var sell = pay(back);
 
 	function log(error, response)
 	{
 		console.log(error, response);
 	}
 
-	if (!key)
+	if (!sure)
 		return;
 
 	buy.submit(log);
@@ -317,7 +319,7 @@ function getprice(src, dst)
 		unit = base + "/" + counter;
 	}
 
-	return price.toPrecision(6) + " " + unit;
+	return price.toPrecision(5) + " " + unit;
 }
 
 function getround(pair)
@@ -355,7 +357,7 @@ function display()
 		else
 			cell.addClass("danger");
 
-		profit = "(" + profit.toFixed(1) + "%)";
+		profit = "(" + profit.toFixed(2) + "%)";
 		cell.text(human + " " + profit);
 	}
 }
@@ -647,6 +649,7 @@ function main()
 	setInterval(tick, 1e3);
 	account.on("transaction", request);
 	remote.connect(listen);
+	remote.set_secret(id, localStorage[id]);
 
 	$.post("http://api.ripplecharts.com/api/account_offers_exercised", {
 		descending: true,
