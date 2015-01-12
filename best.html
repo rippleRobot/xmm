@@ -16,14 +16,9 @@ table {
 .update {
 	text-shadow: 0px 0px 1px;
 }
-
-.chart {
-	height: 240px;
-}
 </style>
 
 <script src="http://code.jquery.com/jquery.js"></script>
-<script src="http://code.highcharts.com/highcharts.js"></script>
 <script src="node_modules/ripple-lib/build/ripple-0.9.1-min.js"></script>
 
 <script>
@@ -339,7 +334,7 @@ function getprice(src, dst)
 		unit = base;
 	}
 
-	return price.toPrecision(5) + " " + unit;
+	return price.toPrecision(6) + " " + unit;
 }
 
 function getround(pair)
@@ -377,8 +372,8 @@ function display()
 		else
 			cell.addClass("danger");
 
-		profit = "(" + profit.toFixed(1) + "%)";
-		cell.text(human + " " + profit);
+		profit = profit.toFixed(1) + "%";
+		cell.text(human + ", " + profit);
 	}
 }
 
@@ -434,9 +429,11 @@ function update(data)
 	var amount = data.destination_amount;
 	var dst = convert(amount);
 	var n = alt.length;
+	var socket = ws[dst.currency];
 	var i;
 
-	ws[dst.currency].time = date.getTime();
+	if (socket)
+		socket.time = date.getTime();
 
 	for (i = 0; i < n; i++) {
 		var path = alt[i];
@@ -537,8 +534,13 @@ function choose()
 		return best;
 	}
 
-	for (pair in round)
-		good[pair] = estimate(round[pair]);
+	for (pair in round) {
+		var stats = round[pair];
+		var rank = estimate(stats);
+
+		stats.rank = rank;
+		good[pair] = rank;
+	}
 
 	return top(good);
 }
@@ -579,75 +581,6 @@ function tick()
 	display();
 }
 
-function getstats(list)
-{
-	var fields = list.shift();
-	var nfields = fields.length;
-	var n = list.length;
-	var stats = {};
-	var data = [];
-	var format = "{point.name}: {point.percentage:.1f}%";
-	var i, j, pair;
-
-	for (i = 0; i < n; i++) {
-		var entry = list[i];
-		var dict = {};
-
-		for (j = 0; j < nfields; j++) {
-			var name = fields[j];
-
-			dict[name] = entry[j];
-		}
-
-		list[i] = dict;
-
-		pair = [
-			dict.baseCurrency,
-			dict.counterCurrency
-		].sort().join("/");
-
-		if (stats[pair])
-			++stats[pair];
-		else
-			stats[pair] = 1;
-	}
-
-	for (pair in stats) {
-		var part = 100 * stats[pair] / n;
-		var entry = [
-			pair,
-			part
-		];
-
-		if (1 < part)
-			data.unshift(entry);
-	}
-
-	$("div.chart").highcharts({
-		title: null,
-		tooltip: {
-			enabled: false
-		},
-		plotOptions: {
-			pie: {
-				allowPointSelect: true,
-				dataLabels: {
-					format: format,
-					style: {
-						fontWeight: "bold"
-					}
-				},
-				innerSize: "50%",
-				size: "100%"
-			}
-		},
-		series: [{
-			type: "pie",
-			data: data
-		}]
-	});
-}
-
 function main()
 {
 	var old = new Date(0);
@@ -668,13 +601,6 @@ function main()
 	account.on("transaction", request);
 	remote.connect(listen);
 	remote.set_secret(id, localStorage[id]);
-
-	$.post("http://api.ripplecharts.com/api/account_offers_exercised", {
-		descending: true,
-		startTime: old.toISOString(),
-		endTime: now.toISOString(),
-		account: id
-	}, getstats);
 }
 
 $(main);
@@ -683,7 +609,7 @@ $(main);
 
 <body>
 <div class="container-fluid">
-<div class="chart page-header"></div>
+<div class="page-header text-center"><h1></h1></div>
 
 <table class="table table-bordered text-center hidden">
 <tr>
