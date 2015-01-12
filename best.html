@@ -170,7 +170,7 @@ function trigger()
 	var profit = 100 * round[orig].profit;
 	var back = paths[riap];
 	var sure = confirm([
-		profit.toFixed(2) + "%",
+		profit.toFixed(3) + "%",
 		path.human,
 		back.human
 	].join(", "));
@@ -333,10 +333,10 @@ function getprice(src, dst)
 
 	if (src < dst) {
 		price = dst / src;
-		unit = counter + "/" + base;
+		unit = counter;
 	} else {
 		price = src / dst;
-		unit = base + "/" + counter;
+		unit = base;
 	}
 
 	return price.toPrecision(5) + " " + unit;
@@ -377,7 +377,7 @@ function display()
 		else
 			cell.addClass("danger");
 
-		profit = "(" + profit.toFixed(2) + "%)";
+		profit = "(" + profit.toFixed(1) + "%)";
 		cell.text(human + " " + profit);
 	}
 }
