@@ -23,8 +23,8 @@ table {
 
 <script>
 var options = {
-	max_fee: 12000,
-	fee_cushion: 1.2,
+	max_fee: 300000,
+	fee_cushion: 1.5,
 	servers: [
 		"wss://s-east.ripple.com:443",
 		"wss://s-west.ripple.com:443"
@@ -377,7 +377,7 @@ function judge(pair)
 	var path = paths[pair];
 	var back = paths[riap];
 	var stats = round[orig];
-	var drop = 1 - 4 * fee / saldo["XRP"];
+	var drop = 1 - 2 * fee / saldo["XRP"];
 	var p0, p1, profit, prev, count, avg, ema;
 
 	if (!path || !back)
