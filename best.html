@@ -43,7 +43,7 @@ var template = {};
 var pending = true;
 var ready = false;
 var busy = 0;
-var ledger, saldo, table, header, state, ws;
+var ledger, saldo, table, header, state, ws, deposit;
 
 function start()
 {
@@ -110,6 +110,9 @@ function setlines(error, response)
 				saldo[currency] = balance;
 		}
 	}
+
+	if (!deposit)
+		deposit = saldo;
 
 	show();
 }
@@ -247,17 +250,13 @@ function show()
 
 	for (unit in saldo) {
 		var balance = saldo[unit];
-		var cell, prev, change;
+		var prev = deposit[unit];
+		var diff = 100 * (balance / prev - 1);
+		var cell, change;
 
 		addunit(unit);
 
 		cell = pairs[unit + ">" + unit];
-		prev = parseFloat(cell.data("balance"));
-
-		if (balance == prev)
-			continue;
-
-		cell.data("balance", balance);
 
 		if (prev < balance) {
 			cell.data("class", "text-success");
@@ -270,7 +269,9 @@ function show()
 			change = "\u25CF";
 		}
 
-		cell.data("update", change + " " + balance.toPrecision(6));
+		balance = change + " " + balance.toPrecision(6);
+		diff = diff.toFixed(1) + "%";
+		cell.data("update", balance + ", " + diff);
 		replace(cell);
 	}
 
