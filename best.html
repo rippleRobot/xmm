@@ -114,8 +114,13 @@ function setlines(error, response)
 		}
 	}
 
-	if (!deposit)
+	if (!deposit) {
+		var json = JSON.stringify(saldo);
+
+		localStorage[location.href] = json;
+
 		deposit = saldo;
+	}
 
 	show();
 }
@@ -589,6 +594,16 @@ function main()
 	template.header = header.children("th").detach();
 	template.row = header.clone();
 	template.cell = template.row.children("td").detach();
+
+	try {
+		var json = localStorage[location.href];
+
+		deposit = JSON.parse(json);
+	} catch (e) {
+		deposit = undefined;
+
+		console.log("Initial balance unknown");
+	}
 
 	setInterval(tick, 1e3);
 	account.on("transaction", request);
