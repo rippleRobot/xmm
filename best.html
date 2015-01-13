@@ -43,6 +43,7 @@ var template = {};
 var pending = true;
 var ready = false;
 var busy = 0;
+var key = localStorage[id];
 var ledger, saldo, table, header, state, ws, deposit;
 
 function start()
@@ -127,6 +128,7 @@ function pay(path)
 	tx.paths(path.alt);
 	tx.sendMax(path.cost);
 	tx.set_flags("PartialPayment");
+	tx.secret(key);
 
 	return tx;
 }
@@ -591,7 +593,6 @@ function main()
 	setInterval(tick, 1e3);
 	account.on("transaction", request);
 	remote.connect(listen);
-	remote.set_secret(id, localStorage[id]);
 }
 
 $(main);
