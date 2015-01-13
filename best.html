@@ -54,6 +54,8 @@ function start()
 
 	ws = {};
 	round = {};
+	paths = {};
+	display();
 
 	state.addClass("info");
 	remote.once("ledger_closed", getsaldo);
@@ -158,25 +160,6 @@ function trade(orig)
 	sell.submit(log);
 }
 
-function trigger()
-{
-	var cell = $(this);
-	var pair = cell.data("pair");
-	var riap = pair.split(">").reverse().join(">");
-	var path = paths[pair];
-	var orig = pair.split(">").sort().join("/");
-	var profit = 100 * round[orig].profit;
-	var back = paths[riap];
-	var sure = confirm([
-		profit.toFixed(3) + "%",
-		path.human,
-		back.human
-	].join(", "));
-
-	if (sure)
-		trade(orig);
-}
-
 function addunit(unit)
 {
 	var src, dst;
@@ -198,10 +181,8 @@ function addunit(unit)
 		src.append(cell);
 		pairs[pair] = cell;
 
-		if (unit != dst) {
+		if (unit != dst)
 			cell.data("pair", pair);
-			cell.click(trigger);
-		}
 	}
 
 	units[unit] = src;
@@ -212,10 +193,8 @@ function addunit(unit)
 		units[src].append(cell);
 		pairs[pair] = cell;
 
-		if (unit != src) {
+		if (unit != src)
 			cell.data("pair", pair);
-			cell.click(trigger);
-		}
 	}
 }
 
@@ -350,19 +329,25 @@ function display()
 	var date = new Date();
 	var pair;
 
-	for (pair in paths) {
-		var stats = getround(pair);
-		var human = paths[pair].human;
+	for (pair in pairs) {
+		var src = pair.split(">").pop();
+		var dst = pair.split(">").shift();
 		var cell = pairs[pair];
-		var profit, since;
+		var path = paths[pair];
+		var stats = getround(pair);
+		var profit, since, human;
+
+		if (src == dst)
+			continue;
 
 		cell.removeClass();
 
-		if (!stats) {
+		if (!stats || !path) {
 			cell.text("");
 			continue;
 		}
 
+		human = paths[pair].human;
 		profit = 100 * stats.profit;
 		since = date.getTime() - stats.time;
 
@@ -573,7 +558,12 @@ function tick()
 	}
 
 	if (best) {
-		console.info(best, round[best]);
+		var rank = round[best].rank;
+
+		rank *= 100;
+		rank = rank.toFixed(3) + "%";
+		console.info(best, rank);
+
 		trade(best);
 	}
 
