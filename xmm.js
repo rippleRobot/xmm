@@ -2,16 +2,20 @@ var assert = require("assert");
 var fs = require("fs");
 var util = require("util");
 
+var env = process.env;
+var host = env.XMM_HOST;
+var servers = [
+	"wss://s-east.ripple.com:443",
+	"wss://s-west.ripple.com:443"
+];
 var options = {
 	max_fee: 10000,
 	fee_cushion: 1,
-	servers: [
-		"wss://s-east.ripple.com:443",
-		"wss://s-west.ripple.com:443"
-	],
+	servers: host ? [
+		host
+	] : servers,
 	trusted: false
 };
-var env = process.env;
 var filename = "history.json";
 var history;
 

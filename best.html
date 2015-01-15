@@ -22,13 +22,17 @@ table {
 <script src="node_modules/ripple-lib/build/ripple-0.9.1-min.js"></script>
 
 <script>
+var host = localStorage.bestws;
+var servers = [
+	"wss://s-east.ripple.com:443",
+	"wss://s-west.ripple.com:443"
+];
 var options = {
 	max_fee: 300000,
 	fee_cushion: 1.5,
-	servers: [
-		"wss://s-east.ripple.com:443",
-		"wss://s-west.ripple.com:443"
-	],
+	servers: host ? [
+		host
+	] : servers,
 	trusted: false
 };
 var remote = new ripple.Remote(options);
