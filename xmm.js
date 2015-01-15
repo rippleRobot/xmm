@@ -11,9 +11,9 @@ var servers = [
 var options = {
 	max_fee: 10000,
 	fee_cushion: 1,
-	servers: host ? [
+	servers: host ? servers.concat([
 		host
-	] : servers,
+	]) : servers,
 	trusted: false
 };
 var filename = "history.json";

@@ -30,9 +30,9 @@ var servers = [
 var options = {
 	max_fee: 300000,
 	fee_cushion: 1.5,
-	servers: host ? [
+	servers: host ? servers.concat([
 		host
-	] : servers,
+	]) : servers,
 	trusted: false
 };
 var remote = new ripple.Remote(options);
