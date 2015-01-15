@@ -362,7 +362,7 @@ function display()
 		profit = 100 * stats.profit;
 		since = date.getTime() - stats.time;
 
-		if (5e3 < since)
+		if (3e3 < since)
 			cell.addClass("warning");
 		else if (0 < profit)
 			cell.addClass("success");
@@ -497,7 +497,7 @@ function estimate(stats)
 	var ema = stats.ema;
 	var avg = stats.avg;
 
-	if (5e3 < since)
+	if (3e3 < since)
 		return -1;
 	else if (count < 10)
 		return -1;
@@ -549,7 +549,7 @@ function watchdog()
 	var socket;
 
 	for (socket in ws)
-		if (1e4 < now - ws[socket].time)
+		if (3e4 < now - ws[socket].time)
 			return request();
 }
 
