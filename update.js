@@ -13,7 +13,10 @@ function getsaldo(data)
 		return start();
 	}
 
-	remote.request_account_balance(id, ledger, setxrp);
+	remote.request_account_balance({
+		account: id,
+		ledger: ledger
+	}, setxrp);
 }
 
 function setxrp(error, response)
@@ -27,7 +30,10 @@ function setxrp(error, response)
 
 	saldo["XRP"] = response.to_number() / 1e6;
 
-	remote.request_account_lines(id, ledger, setlines);
+	remote.request_account_lines({
+		account: id,
+		ledger: ledger
+	}, setlines);
 }
 
 function setlines(error, response)
@@ -61,7 +67,10 @@ function setlines(error, response)
 		}
 	}
 
-	remote.request_account_offers(id, ledger, update);
+	remote.request_account_offers({
+		account: id,
+		ledger: ledger
+	}, update);
 }
 
 function update(error, response)
