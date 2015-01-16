@@ -478,6 +478,7 @@ function setup()
 
 function find(target)
 {
+	var date = new Date();
 	var socket = ws[target];
 	var path = paths[target + ">XRP"];
 	var dst;
@@ -507,6 +508,7 @@ function find(target)
 	socket = new ripple.Remote(options);
 	socket.dst = dst;
 	socket.connect(setup);
+	socket.time = date.getTime();
 	ws[target] = socket;
 
 	targets[target].addClass("active");
