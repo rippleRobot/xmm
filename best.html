@@ -316,6 +316,20 @@ function convert(amount)
 	return dict;
 }
 
+function gethuman(json)
+{
+	var amount = convert(json);
+	var value = amount.value;
+	var currency = amount.currency;
+	var balance = saldo[currency];
+	var part = value / balance;
+
+	amount = value.toPrecision(6) + " " + currency;
+	part *= 100;
+	part = part.toFixed(0) + "%";
+	return amount + " (" + part + ")";
+}
+
 function getprice(src, dst)
 {
 	var base = src.currency;
@@ -504,6 +518,8 @@ function find(target)
 		dst = amount(saldo["XRP"] / 2, "XRP");
 	else
 		return;
+
+	targets[target].text(gethuman(dst));
 
 	socket = new ripple.Remote(options);
 	socket.dst = dst;
