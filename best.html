@@ -89,8 +89,6 @@ function setxrp(error, response)
 
 	saldo["XRP"] = response.to_number() / 1e6;
 
-	find(response.divide(2).to_json());
-
 	remote.request_account_lines(id, ledger, setlines);
 }
 
@@ -452,7 +450,7 @@ function update(data)
 			judge(pair);
 
 			if ("XRP" == dst.currency)
-				find(cost);
+				find(src.currency);
 		}
 	}
 
@@ -467,12 +465,32 @@ function setup()
 	path.on("update", update);
 }
 
-function find(dst)
+function find(target)
 {
-	var target = convert(dst).currency;
 	var socket = ws[target];
+	var path = paths[target + ">XRP"];
+	var dst;
+
+	function amount(value, currency)
+	{
+		if ("XRP" == currency)
+			return Math.round(value * 1e6);
+
+		return {
+			value: value.toFixed(20),
+			currency: currency,
+			issuer: id
+		};
+	}
 
 	if (socket)
+		return;
+
+	if (path)
+		dst = path.cost;
+	else if ("XRP" == target)
+		dst = amount(saldo["XRP"] / 2, "XRP");
+	else
 		return;
 
 	socket = new ripple.Remote(options);
@@ -487,6 +505,8 @@ function listen()
 
 	if (pending)
 		request();
+	else
+		find("XRP");
 }
 
 function estimate(stats)
@@ -547,11 +567,18 @@ function watchdog()
 {
 	var date = new Date();
 	var now = date.getTime();
-	var socket;
+	var target;
 
-	for (socket in ws)
-		if (3e4 < now - ws[socket].time)
-			return request();
+	for (target in ws) {
+		var socket = ws[target];
+
+		if (7e3 < now - socket.time) {
+			socket.disconnect();
+			delete ws[target];
+			find(target);
+			return;
+		}
+	}
 }
 
 function tick()
