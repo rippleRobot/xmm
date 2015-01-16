@@ -45,6 +45,7 @@ var pairs = {};
 var paths = {};
 var units = {};
 var template = {};
+var targets = {};
 var pending = true;
 var ready = false;
 var busy = 0;
@@ -183,6 +184,8 @@ function addunit(unit)
 	header.append(dst);
 	src.append(dst.clone());
 	table.append(src);
+
+	targets[unit] = dst;
 
 	for (dst in units) {
 		var cell = template.cell.clone();
@@ -431,6 +434,8 @@ function update(data)
 	if (socket)
 		socket.time = date.getTime();
 
+	targets[dst.currency].removeClass("active");
+
 	for (i = 0; i < n; i++) {
 		var path = alt[i];
 		var cost = path.source_amount;
@@ -497,6 +502,8 @@ function find(target)
 	socket.dst = dst;
 	socket.connect(setup);
 	ws[target] = socket;
+
+	targets[target].addClass("active");
 }
 
 function listen()
