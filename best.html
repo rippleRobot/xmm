@@ -50,7 +50,7 @@ var pending = true;
 var ready = false;
 var busy = 0;
 var key = localStorage[id];
-var ledger, saldo, table, header, state, ws, deposit;
+var ledger, saldo, table, header, state, ws, deposit, reserve;
 
 function start()
 {
@@ -71,12 +71,17 @@ function start()
 function getsaldo(data)
 {
 	ledger = data.ledger_index;
+	reserve = {
+		base: data.reserve_base / 1e6,
+		inc: data.reserve_inc / 1e6
+	};
+
 	if (!ledger) {
 		console.error("Failed to get ledger");
 		return start();
 	}
 
-	remote.request_account_balance({
+	remote.request_account_info({
 		account: id,
 		ledger: ledger
 	}, setxrp);
@@ -84,6 +89,8 @@ function getsaldo(data)
 
 function setxrp(error, response)
 {
+	var data, balance, count;
+
 	if (error) {
 		console.error("Failed to get balance");
 		return start();
@@ -91,7 +98,12 @@ function setxrp(error, response)
 
 	saldo = {};
 
-	saldo["XRP"] = response.to_number() / 1e6;
+	data = response.account_data;
+	balance = parseInt(data.Balance) / 1e6;
+	count = data.OwnerCount;
+	reserve = reserve.base + count * reserve.inc;
+
+	saldo["XRP"] = balance - reserve;
 
 	remote.request_account_lines({
 		account: id,
@@ -403,7 +415,7 @@ function judge(pair)
 	var path = paths[pair];
 	var back = paths[riap];
 	var stats = round[orig];
-	var drop = 1 - 2 * fee / saldo["XRP"];
+	var drop = 1 - fee / saldo["XRP"];
 	var p0, p1, profit, prev, count, avg, ema;
 
 	if (!path || !back)
@@ -515,7 +527,7 @@ function find(target)
 	if (path)
 		dst = path.cost;
 	else if ("XRP" == target)
-		dst = amount(saldo["XRP"] / 2, "XRP");
+		dst = amount(saldo["XRP"], "XRP");
 	else
 		return;
 
