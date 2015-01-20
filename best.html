@@ -647,7 +647,8 @@ function tick()
 		rank = rank.toFixed(3) + "%";
 		console.info(best, rank);
 
-		trade(best);
+		if (key)
+			trade(best);
 	}
 
 	watchdog();
