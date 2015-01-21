@@ -50,7 +50,6 @@ var pending = true;
 var ready = false;
 var busy = 0;
 var key = localStorage[id];
-var results = [];
 var ledger, saldo, table, header, state, ws, deposit, reserve;
 
 function start()
@@ -172,7 +171,7 @@ function trade(orig)
 
 	function log(error, response)
 	{
-		results.push(response);
+		console.info(error, response);
 
 		--busy;
 		if (busy < 0)
