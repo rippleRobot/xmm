@@ -387,21 +387,21 @@ function display()
 		var cell = pairs[pair];
 		var path = paths[pair];
 		var stats = getround(pair);
-		var profit, since, human;
+		var profit = stats ? stats.profit : -1;
+		var since, human;
 
 		if (src == dst)
 			continue;
 
 		cell.removeClass();
 
-		if (!stats || !path) {
+		if (!path) {
 			cell.text("");
 			continue;
 		}
 
-		human = paths[pair].human;
-		profit = 100 * stats.profit;
-		since = date.getTime() - stats.time;
+		human = path.human;
+		since = date.getTime() - path.time;
 
 		if (3e3 < since)
 			cell.addClass("warning");
@@ -410,6 +410,7 @@ function display()
 		else
 			cell.addClass("danger");
 
+		profit *= 100;
 		profit = profit.toFixed(1) + "%";
 		cell.text(human + ", " + profit);
 	}
