@@ -184,13 +184,16 @@ function trade(orig)
 		if (busy < 0)
 			busy = 0;
 
-		if (!busy)
+		if (!busy) {
+			ready = true;
 			request();
+		}
 	}
 
 	if (0 < busy)
 		return;
 
+	ready = false;
 	busy += 2;
 	buy.submit(log);
 	sell.submit(log);
