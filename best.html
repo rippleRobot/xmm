@@ -59,6 +59,13 @@ function start()
 	for (target in ws)
 		ws[target].disconnect();
 
+	for (target in targets) {
+		var head = targets[target];
+
+		head.text(target);
+		head.removeClass("active");
+	}
+
 	ws = {};
 	round = {};
 	paths = {};
