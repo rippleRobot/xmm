@@ -50,7 +50,8 @@ var pending = true;
 var ready = false;
 var busy = 0;
 var key = localStorage[id];
-var ledger, saldo, table, header, state, ws, deposit, reserve;
+var ledger, saldo, oldsaldo, ws, deposit, reserve;
+var table, header, state;
 
 function start()
 {
@@ -151,7 +152,28 @@ function setlines(error, response)
 		deposit = saldo;
 	}
 
+	if (oldsaldo)
+		showdiff();
+
+	oldsaldo = saldo;
+
 	show();
+}
+
+function showdiff()
+{
+	var dict = {};
+	var unit;
+
+	for (unit in saldo) {
+		var last = saldo[unit];
+		var prev = oldsaldo[unit];
+
+		if (last.toPrecision(6) != prev.toPrecision(6))
+			dict[unit] = last - prev;
+	}
+
+	console.info(dict);
 }
 
 function pay(path)
