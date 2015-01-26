@@ -449,14 +449,16 @@ function judge(pair)
 	var back = paths[riap];
 	var stats = round[orig];
 	var drop = 1 - fee / saldo["XRP"];
-	var p0, p1, profit, prev, count, avg, ema;
+	var x0, x1, y0, y1, profit, prev, count, avg, ema;
 
 	if (!path || !back)
 		return;
 
-	p0 = drop * path.price;
-	p1 = drop * back.price;
-	profit = p0 * p1 - 1;
+	x0 = path.src.value;
+	y0 = back.src.value;
+	x1 = back.dst.value;
+	y1 = path.dst.value;
+	profit = drop * Math.min(x1 / x0, y1 / y0) - 1;
 
 	if (stats) {
 		count = stats.count;
@@ -509,9 +511,10 @@ function update(data)
 
 		if (pairs[pair]) {
 			paths[pair] = {
+				src: src,
+				dst: dst,
 				alt: path.paths_computed,
 				human: getprice(src, dst),
-				price: dst.value / src.value,
 				time: date.getTime(),
 				cost: cost,
 				amount: amount
