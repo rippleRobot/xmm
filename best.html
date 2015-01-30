@@ -646,6 +646,20 @@ function watchdog()
 		var socket = ws[target];
 
 		if (7e3 < now - socket.time) {
+			var pair;
+
+			for (pair in paths) {
+				var dst = pair.split(">").pop();
+				var stats = getround(pair);
+
+				if (dst == target) {
+					if (stats)
+						stats.count = 0;
+
+					paths[pair].count = 0;
+				}
+			}
+
 			socket.disconnect();
 			delete ws[target];
 			find(target);
