@@ -1,9 +1,18 @@
+var $ = this.$;
+
+ if ($) {
+var id = location.search.replace("?", "");
+var key = localStorage[id];
+var host = localStorage.bestws;
+ } else {
 var ripple = require("ripple-lib");
 
 var env = process.env;
 var id = env.ARB_ID;
 var key = env.ARB_KEY;
 var host = env.ARB_HOST;
+ }
+
 var servers = [
 	"wss://s1.ripple.com:443",
 	"wss://s-east.ripple.com:443",
@@ -43,6 +52,19 @@ function start()
 	ws = {};
 	round = {};
 	paths = {};
+
+ if ($) {
+	for (target in targets) {
+		var head = targets[target];
+
+		head.text(target);
+		head.removeClass("active");
+	}
+
+	display();
+
+	state.addClass("info");
+ }
 
 	remote.once("ledger_closed", getsaldo);
 }
@@ -115,6 +137,20 @@ function setlines(error, response)
 		}
 	}
 
+ if ($) {
+	if (!deposit) {
+		var json = JSON.stringify(saldo);
+
+		localStorage[location.href] = json;
+
+		deposit = saldo;
+	}
+
+	show();
+ } else {
+	console.info(new Date());
+ }
+
 	showdiff();
 	oldsaldo = saldo;
 
@@ -137,7 +173,7 @@ function showdiff()
 			dict[unit] = last - prev;
 	}
 
-	console.info(new Date(), dict);
+	console.info(dict);
 }
 
 function pay(path)
@@ -461,6 +497,11 @@ function update(data)
 		var pair = src.currency + ">" + dst.currency;
 		var prev = paths[pair];
 
+ if ($) {
+		if (!pairs[pair])
+			continue;
+ }
+
 		paths[pair] = {
 			count: prev ? prev.count + 1 : 1,
 			alt: path.paths_computed,
@@ -476,6 +517,11 @@ function update(data)
 		if ("XRP" == dst.currency)
 			find(src.currency);
 	}
+
+ if ($) {
+	targets[dst.currency].removeClass("active");
+	display();
+ }
 }
 
 function setup()
@@ -514,6 +560,11 @@ function find(target)
 		dst = amount(saldo["XRP"], "XRP");
 	else
 		return;
+
+ if ($) {
+	targets[target].text(gethuman(dst));
+	targets[target].addClass("active");
+ }
 
 	socket = new ripple.Remote(options);
 	socket.dst = dst;
@@ -621,6 +672,19 @@ function watchdog()
 function tick()
 {
 	var best = choose();
+ if ($) {
+	var last = state.data("time");
+
+	if (last) {
+		var date = new Date();
+		var since = date.getTime() - last;
+
+		since = new Date(since);
+		since = since.toISOString();
+		since = since.replace(/^.*T(..:..:..).*$/, "$1");
+		state.text(since);
+	}
+ }
 
 	if (best) {
 		var rank = round[best].rank;
@@ -634,15 +698,49 @@ function tick()
 	}
 
 	watchdog();
+
+ if ($) {
+	display();
+ }
 }
 
 function main()
 {
+ if ($) {
+	var old = new Date(0);
+	var now = new Date();
+
+	$("h1").text(id);
+
+	table = $("table");
+	header = $("tr");
+	state = $("td");
+	state.click(request);
+
+	template.header = header.children("th").detach();
+	template.row = header.clone();
+	template.cell = template.row.children("td").detach();
+
+	try {
+		var json = localStorage[location.href];
+
+		deposit = JSON.parse(json);
+	} catch (e) {
+		deposit = undefined;
+
+		console.log("Initial balance unknown");
+	}
+ } else {
 	console.info(id);
+ }
 
 	setInterval(tick, 1e3);
 	account.on("transaction", request);
 	remote.connect(listen);
 }
 
+ if ($) {
+$(main);
+ } else {
 main();
+ }
