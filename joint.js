@@ -19,7 +19,7 @@ var servers = [
 	"wss://s-west.ripple.com:443"
 ];
 var options = {
-	max_fee: 225000,
+	max_fee: 15000,
 	fee_cushion: 1.5,
 	servers: host ? servers.concat([
 		host
@@ -28,7 +28,6 @@ var options = {
 };
 var remote = new ripple.Remote(options);
 var account = remote.account(id);
-var fee = options.max_fee / 1e6;
 var issuer = "rvYAfWj5gh67oV6fW32ZzP3Aw4Eubs59B";
 var rusd = "USD:" + issuer;
 var rbtc = "BTC:" + issuer;
