@@ -29,6 +29,10 @@ var options = {
 var remote = new ripple.Remote(options);
 var account = remote.account(id);
 var fee = options.max_fee / 1e6;
+var issuer = "rvYAfWj5gh67oV6fW32ZzP3Aw4Eubs59B";
+var rusd = "USD:" + issuer;
+var rbtc = "BTC:" + issuer;
+var stake = 5;
 var oldsaldo = {};
 var round = {};
 var pairs = {};
@@ -39,7 +43,7 @@ var targets = {};
 var pending = true;
 var ready = false;
 var busy = 0;
-var ledger, saldo, ws, deposit, reserve;
+var ledger, saldo, ws, deposit;
 var table, header, state;
 
 function start()
@@ -72,39 +76,10 @@ function start()
 function getsaldo(data)
 {
 	ledger = data.ledger_index;
-	reserve = {
-		base: data.reserve_base / 1e6,
-		inc: data.reserve_inc / 1e6
-	};
-
 	if (!ledger) {
 		console.error("Failed to get ledger");
 		return start();
 	}
-
-	remote.request_account_info({
-		account: id,
-		ledger: ledger
-	}, setxrp);
-}
-
-function setxrp(error, response)
-{
-	var data, balance, count;
-
-	if (error) {
-		console.error("Failed to get balance");
-		return start();
-	}
-
-	saldo = {};
-
-	data = response.account_data;
-	balance = parseInt(data.Balance) / 1e6;
-	count = data.OwnerCount;
-	reserve = reserve.base + count * reserve.inc;
-
-	saldo["XRP"] = balance - reserve;
 
 	remote.request_account_lines({
 		account: id,
@@ -121,20 +96,18 @@ function setlines(error, response)
 		return start();
 	}
 
+	saldo = {};
+
 	lines = response.lines;
 	for (i = 0; i < lines.length; i++) {
 		var line = lines[i];
 		var balance = parseFloat(line.balance);
-		var active = line.no_ripple;
 		var currency = line.currency;
 		var account = line.account;
+		var unit = currency + ":" + account;
 
-		if (active) {
-			if (saldo[currency])
-				saldo[currency] += balance;
-			else
-				saldo[currency] = balance;
-		}
+		if ((rusd == unit) || (rbtc == unit))
+			saldo[currency] = balance;
 	}
 
  if ($) {
@@ -445,14 +418,13 @@ function judge(pair)
 	var path = paths[pair];
 	var back = paths[riap];
 	var stats = round[orig];
-	var drop = 1 - fee / saldo["XRP"];
 	var p0, p1, profit, count, avg, ema;
 
 	if (!path || !back)
 		return;
 
-	p0 = drop * path.price;
-	p1 = drop * back.price;
+	p0 = path.price;
+	p1 = back.price;
 	profit = p0 * p1 - 1;
 
 	if (stats) {
@@ -514,7 +486,7 @@ function update(data)
 
 		judge(pair);
 
-		if ("XRP" == dst.currency)
+		if ("USD" == dst.currency)
 			find(src.currency);
 	}
 
@@ -536,18 +508,15 @@ function find(target)
 {
 	var date = new Date();
 	var socket = ws[target];
-	var path = paths[target + ">XRP"];
+	var path = paths[target + ">USD"];
 	var dst;
 
 	function amount(value, currency)
 	{
-		if ("XRP" == currency)
-			return Math.round(value * 1e6);
-
 		return {
 			value: value.toFixed(20),
 			currency: currency,
-			issuer: id
+			issuer: issuer
 		};
 	}
 
@@ -556,8 +525,8 @@ function find(target)
 
 	if (path)
 		dst = path.cost;
-	else if ("XRP" == target)
-		dst = amount(saldo["XRP"], "XRP");
+	else if ("USD" == target)
+		dst = amount(stake, "USD");
 	else
 		return;
 
@@ -580,7 +549,7 @@ function listen()
 	if (pending)
 		request();
 	else
-		find("XRP");
+		find("USD");
 }
 
 function estimate(stats)
