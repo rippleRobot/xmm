@@ -19,8 +19,45 @@ table {
 </style>
 
 <script src="http://code.jquery.com/jquery.js"></script>
+<script src="http://js.pusher.com/2.2/pusher.min.js"></script>
 <script src="node_modules/ripple-lib/build/ripple-0.10.0-min.js"></script>
 <script src="joint.js"></script>
+
+<script>
+var pusher = new Pusher("de504dc5763aeef9ff52");
+
+function bitstamp(data)
+{
+	var bid = data.bids.shift();
+	var ask = data.asks.shift();
+	var margin = 0.005;
+	var price, volume;
+
+	if (bid) {
+		price = parseFloat(bid[0]);
+		volume = parseFloat(bid[1]);
+
+		if (5 < price * volume)
+			bid = (1 - margin) * price;
+		else
+			bid = undefined;
+	}
+
+	if (ask) {
+		price = parseFloat(ask[0]);
+		volume = parseFloat(ask[1]);
+
+		if (5 < price * volume)
+			ask = (1 + margin) * price;
+		else
+			ask = undefined;
+	}
+
+	console.info(bid, ask);
+}
+
+pusher.subscribe("order_book").bind("data", bitstamp);
+</script>
 </head>
 
 <body>
