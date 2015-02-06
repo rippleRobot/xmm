@@ -39,6 +39,8 @@ var targets = {};
 var pending = true;
 var ready = false;
 var busy = 0;
+var stall = 1e4;
+var maxlag = 5e3;
 var mincount = 5;
 var ledger, saldo, ws, deposit, reserve;
 var table, header, state;
@@ -426,7 +428,7 @@ function display()
 		human = path.human;
 		since = date.getTime() - path.time;
 
-		if (3e3 < since)
+		if (maxlag < since)
 			cell.addClass("warning");
 		else if (0 < profit)
 			cell.addClass("success");
@@ -446,7 +448,7 @@ function judge(pair)
 	var path = paths[pair];
 	var back = paths[riap];
 	var stats = round[orig];
-	var p0, p1, profit, count, avg, ema;
+	var p0, p1, profit;
 
 	if (!path || !back)
 		return;
@@ -455,24 +457,15 @@ function judge(pair)
 	p1 = back.price;
 	profit = p0 * p1 - 1.01;
 
-	if (stats) {
-		avg = stats.avg;
-		ema = stats.ema;
-	} else {
-		avg = profit;
-		ema = profit;
-
-		stats = {};
+	if (!stats) {
+		stats = {
+			ema: profit
+		};
 		round[orig] = stats;
 	}
 
-	count = Math.min(mincount, path.count, back.count);
-	avg = (count * avg + profit) / (count + 1);
-	ema = (ema + profit) / 2;
-
-	stats.count = count;
-	stats.avg = avg;
-	stats.ema = ema;
+	stats.count = Math.min(mincount, path.count, back.count);
+	stats.ema = (stats.ema + profit) / 2;
 	stats.profit = profit;
 	stats.time = Math.min(path.time, back.time);
 }
@@ -590,18 +583,15 @@ function estimate(stats)
 	var count = stats.count;
 	var profit = stats.profit;
 	var ema = stats.ema;
-	var avg = stats.avg;
 
-	if (3e3 < since)
+	if (maxlag < since)
 		return -1;
 	else if (count < mincount)
 		return -1;
 	else if (profit <= 0)
 		return profit;
-	else if (ema <= 0)
-		return ema;
 	else
-		return (avg + ema) / 2;
+		return ema;
 }
 
 function choose()
@@ -646,7 +636,7 @@ function watchdog()
 	for (target in ws) {
 		var socket = ws[target];
 
-		if (7e3 < now - socket.time) {
+		if (stall < now - socket.time) {
 			var pair;
 
 			for (pair in paths) {
