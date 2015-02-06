@@ -19,7 +19,7 @@ var servers = [
 	"wss://s-west.ripple.com:443"
 ];
 var options = {
-	max_fee: 225000,
+	max_fee: 30000,
 	fee_cushion: 1.5,
 	servers: host ? servers.concat([
 		host
@@ -39,6 +39,7 @@ var targets = {};
 var pending = true;
 var ready = false;
 var busy = 0;
+var mincount = 5;
 var ledger, saldo, ws, deposit, reserve;
 var table, header, state;
 
@@ -445,15 +446,14 @@ function judge(pair)
 	var path = paths[pair];
 	var back = paths[riap];
 	var stats = round[orig];
-	var drop = 1 - fee / saldo["XRP"];
 	var p0, p1, profit, count, avg, ema;
 
 	if (!path || !back)
 		return;
 
-	p0 = drop * path.price;
-	p1 = drop * back.price;
-	profit = p0 * p1 - 1;
+	p0 = path.price;
+	p1 = back.price;
+	profit = p0 * p1 - 1.01;
 
 	if (stats) {
 		avg = stats.avg;
@@ -466,7 +466,7 @@ function judge(pair)
 		round[orig] = stats;
 	}
 
-	count = Math.min(7, path.count, back.count);
+	count = Math.min(mincount, path.count, back.count);
 	avg = (count * avg + profit) / (count + 1);
 	ema = (ema + profit) / 2;
 
@@ -557,7 +557,7 @@ function find(target)
 	if (path)
 		dst = path.cost;
 	else if ("XRP" == target)
-		dst = amount(saldo["XRP"], "XRP");
+		dst = amount(saldo["XRP"] / 2, "XRP");
 	else
 		return;
 
@@ -594,7 +594,7 @@ function estimate(stats)
 
 	if (3e3 < since)
 		return -1;
-	else if (count < 7)
+	else if (count < mincount)
 		return -1;
 	else if (profit <= 0)
 		return profit;
