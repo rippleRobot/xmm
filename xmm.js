@@ -10,7 +10,7 @@ var servers = [
 	"wss://s-west.ripple.com:443"
 ];
 var options = {
-	max_fee: 10000,
+	max_fee: 30000,
 	fee_cushion: 1,
 	servers: host ? servers.concat([
 		host
