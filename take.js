@@ -49,8 +49,12 @@ function start()
 {
 	var target;
 
-	for (target in ws)
-		ws[target].disconnect();
+	for (target in ws) {
+		var socket = ws[target];
+
+		socket.twin.disconnect();
+		socket.disconnect();
+	}
 
 	ws = {};
 	round = {};
@@ -477,11 +481,9 @@ function update(data)
 	var amount = data.destination_amount;
 	var dst = convert(amount);
 	var n = alt.length;
-	var socket = ws[dst.currency];
 	var i;
 
-	if (socket)
-		socket.time = date.getTime();
+	this.remote.time = date.getTime();
 
 	for (i = 0; i < n; i++) {
 		var path = alt[i];
@@ -530,7 +532,7 @@ function find(target)
 	var date = new Date();
 	var socket = ws[target];
 	var path = paths[target + ">XRP"];
-	var dst;
+	var dst, twin;
 
 	function amount(value, currency)
 	{
@@ -564,6 +566,12 @@ function find(target)
 	socket.connect(setup);
 	socket.time = date.getTime();
 	ws[target] = socket;
+
+	twin = new ripple.Remote(options);
+	twin.dst = dst;
+	twin.connect(setup);
+	twin.time = date.getTime();
+	socket.twin = twin;
 }
 
 function listen()
@@ -635,8 +643,10 @@ function watchdog()
 
 	for (target in ws) {
 		var socket = ws[target];
+		var twin = socket.twin;
+		var time = Math.min(socket.time, twin.time);
 
-		if (stall < now - socket.time) {
+		if (stall < now - time) {
 			var pair;
 
 			for (pair in paths) {
@@ -651,6 +661,7 @@ function watchdog()
 				}
 			}
 
+			twin.disconnect();
 			socket.disconnect();
 			delete ws[target];
 			find(target);
