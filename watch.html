@@ -489,7 +489,8 @@ function getstats(list)
 			part
 		];
 
-		data.unshift(entry);
+		if (1 < part)
+			data.unshift(entry);
 	}
 
 	$("div.chart").highcharts({
