@@ -452,14 +452,15 @@ function judge(pair)
 	var path = paths[pair];
 	var back = paths[riap];
 	var stats = round[orig];
+	var drop = 1 - 2e-6 * options.max_fee / saldo["XRP"];
 	var p0, p1, profit;
 
 	if (!path || !back)
 		return;
 
-	p0 = path.price;
-	p1 = back.price;
-	profit = p0 * p1 - 1.01;
+	p0 = drop * path.price;
+	p1 = drop * back.price;
+	profit = p0 * p1 - 1;
 
 	if (!stats) {
 		stats = {
