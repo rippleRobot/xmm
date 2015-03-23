@@ -207,6 +207,9 @@ function trade(orig)
 
 	function log(error, response)
 	{
+		if (error)
+			console.error(error.result);
+
 		--busy;
 		if (busy < 0)
 			busy = 0;
