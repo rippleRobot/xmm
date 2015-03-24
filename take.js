@@ -185,7 +185,7 @@ function showdiff()
 
 function pay(path)
 {
-	var tx = remote.transaction();
+	var tx = path.socket.transaction();
 
 	tx.payment(id, id, path.amount);
 	tx.paths(path.alt);
@@ -485,9 +485,10 @@ function update(data)
 	var amount = data.destination_amount;
 	var dst = convert(amount);
 	var n = alt.length;
+	var socket = this.remote;
 	var i;
 
-	this.remote.time = date.getTime();
+	socket.time = date.getTime();
 
 	for (i = 0; i < n; i++) {
 		var path = alt[i];
@@ -502,6 +503,7 @@ function update(data)
  }
 
 		paths[pair] = {
+			socket: socket,
 			count: prev ? prev.count + 1 : 1,
 			alt: path.paths_computed,
 			human: getprice(src, dst),
