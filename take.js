@@ -332,6 +332,9 @@ function show()
 
 function request()
 {
+	if (busy)
+		return;
+
 	if (!ready) {
 		pending = true;
 		return;
