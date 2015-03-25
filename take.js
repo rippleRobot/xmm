@@ -78,6 +78,7 @@ function start()
 
 function getsaldo(data)
 {
+	pending = false;
 	ledger = data.ledger_index;
 	reserve = {
 		base: data.reserve_base / 1e6,
@@ -341,7 +342,6 @@ function request()
 	}
 
 	ready = false;
-	pending = false;
 	start();
 }
 
