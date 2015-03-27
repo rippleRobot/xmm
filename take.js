@@ -650,6 +650,9 @@ function watchdog()
 	var now = date.getTime();
 	var target;
 
+	if (busy)
+		return;
+
 	for (target in ws) {
 		var socket = ws[target];
 		var twin = socket.twin;
