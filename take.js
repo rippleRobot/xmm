@@ -531,7 +531,11 @@ function update(data)
 function setup()
 {
 	var dst = ripple.Amount.from_json(this.dst);
-	var path = this.pathFind(id, id, dst);
+	var path = this.pathFind({
+		dst_amount: dst,
+		dst_account: id,
+		src_account: id
+	});
 
 	path.on("update", update);
 }
