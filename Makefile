@@ -8,7 +8,7 @@ all: xmm.js $(RIPPLE_LIB) stop
 	sleep 1
 
 $(RIPPLE_LIB):
-	npm install ripple-lib@0.12.1
+	npm install ripple-lib@0.10.0
 
 stop:
 	-if [ -f daemon.pid ]; then \
