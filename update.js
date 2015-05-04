@@ -54,16 +54,16 @@ function setlines(error, response)
 		var currency = line.currency;
 		var account = line.account;
 
-		if (active) {
-			unit = currency + ":" + account;
-			saldo[unit] = balance;
-		} else if (balance < 0) {
+		if (balance < 0) {
 			unit = currency + ":" + id;
 
 			if (!saldo[unit])
 				saldo[unit] = 0;
 
 			saldo[unit] += balance;
+		} else if (active) {
+			unit = currency + ":" + account;
+			saldo[unit] = balance;
 		}
 	}
 
