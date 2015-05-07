@@ -500,6 +500,10 @@ function update(data)
 		var pair = src.currency + ">" + dst.currency;
 		var prev = paths[pair];
 
+		if ("XRP" != src.currency)
+			if ("XRP" != dst.currency)
+				continue;
+
  if ($) {
 		if (!pairs[pair])
 			continue;
