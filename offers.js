@@ -83,9 +83,9 @@ function ispair(src, dst)
 	if (id == dst.issuer)
 		return false;
 
-	if (isfiat(src.currency) && isfiat(dst.currency))
-		return false;
-	if (src.issuer == dst.issuer)
+	if (isfiat(src.currency) && !isfiat(dst.currency))
+		return true;
+	if (!isfiat(src.currency) && isfiat(dst.currency))
 		return true;
 
 	return false;
