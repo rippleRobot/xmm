@@ -63,7 +63,9 @@ function setlines(error, response)
 			saldo[unit] += balance;
 		} else if (active) {
 			unit = currency + ":" + account;
-			saldo[unit] = balance;
+
+			if (0 < balance)
+				saldo[unit] = balance;
 		}
 	}
 
