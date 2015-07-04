@@ -490,7 +490,7 @@ function update(data)
 	var dst = convert(amount);
 	var n = alt.length;
 	var socket = this.remote;
-	var i;
+	var i, best;
 
 	socket.time = date.getTime();
 
@@ -525,6 +525,18 @@ function update(data)
 
 		if ("XRP" == dst.currency)
 			find(src.currency);
+	}
+
+	best = choose();
+	if (best) {
+		var rank = round[best].rank;
+
+		rank *= 100;
+		rank = rank.toFixed(3) + "%";
+		console.info(best, rank);
+
+		if (key)
+			trade(best);
 	}
 
  if ($) {
@@ -606,9 +618,7 @@ function estimate(stats)
 {
 	var date = new Date();
 	var since = date.getTime() - stats.time;
-	var count = stats.count;
 	var profit = stats.profit;
-	var ema = stats.ema;
 
 	if (maxlag < since)
 		return -1;
@@ -689,7 +699,6 @@ function watchdog()
 
 function tick()
 {
-	var best = choose();
  if ($) {
 	var last = state.data("time");
 
@@ -703,17 +712,6 @@ function tick()
 		state.text(since);
 	}
  }
-
-	if (best) {
-		var rank = round[best].rank;
-
-		rank *= 100;
-		rank = rank.toFixed(3) + "%";
-		console.info(best, rank);
-
-		if (key)
-			trade(best);
-	}
 
 	watchdog();
 
