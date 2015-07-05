@@ -41,7 +41,7 @@ var pending = true;
 var ready = false;
 var busy = 0;
 var stall = 1e4;
-var maxlag = 3e3;
+var maxlag = 5e3;
 var mincount = 5;
 var ledger, saldo, ws, deposit, reserve;
 var table, header, state;
@@ -622,8 +622,12 @@ function estimate(stats)
 
 	if (maxlag < since)
 		return -1;
-	else
+	else if (count < mincount)
+		return -1;
+	else if (profit <= 0)
 		return profit;
+	else
+		return ema;
 }
 
 function choose()
