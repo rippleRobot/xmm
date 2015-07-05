@@ -618,7 +618,9 @@ function estimate(stats)
 {
 	var date = new Date();
 	var since = date.getTime() - stats.time;
+	var count = stats.count;
 	var profit = stats.profit;
+	var ema = stats.ema;
 
 	if (maxlag < since)
 		return -1;
