@@ -187,7 +187,7 @@ function showdiff()
 
 function pay(path)
 {
-	var tx = path.socket.transaction();
+	var tx = remote.transaction();
 
 	tx.payment(id, id, path.amount);
 	tx.paths(path.alt);
