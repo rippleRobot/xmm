@@ -31,7 +31,6 @@ var remote = new ripple.Remote(options);
 var account = remote.account(id);
 var fee = options.max_fee / 1e6;
 var oldsaldo = {};
-var round = {};
 var pairs = {};
 var paths = {};
 var units = {};
@@ -59,7 +58,6 @@ function start()
 	}
 
 	ws = {};
-	round = {};
 	paths = {};
 
  if ($) {
@@ -395,13 +393,6 @@ function getprice(src, dst)
 	return price.toPrecision(5) + " " + unit.replace(/:.*$/, "");
 }
 
-function getround(pair)
-{
-	var orig = pair.split(">").sort().join("/");
-
-	return round[orig];
-}
-
 function display()
 {
 	var date = new Date();
@@ -412,8 +403,7 @@ function display()
 		var dst = pair.split(">").shift();
 		var cell = pairs[pair];
 		var path = paths[pair];
-		var stats = getround(pair);
-		var profit = stats ? stats.profit : -1;
+		var profit = path ? path.profit : -1;
 		var since, human;
 
 		if (src == dst)
@@ -436,40 +426,39 @@ function display()
 		else
 			cell.addClass("danger");
 
-		profit *= 100;
-		profit = profit.toFixed(1) + "%";
+		profit *= 1e4;
+		profit = profit.toFixed(1) + "\u2031";
 		cell.text(human + ", " + profit);
 	}
 }
 
 function judge(pair)
 {
-	var orig = pair.split(">").sort().join("/");
-	var riap = pair.split(">").reverse().join(">");
 	var path = paths[pair];
-	var back = paths[riap];
-	var stats = round[orig];
-	var drop = 1 - 2e-6 * options.max_fee / saldo["XRP"];
-	var p0, p1, profit;
+	var offer = path.offer;
+	var src, dst, base, counter, v0, v1;
 
-	if (!path || !back)
-		return;
+	if (!offer)
+		return 0;
 
-	p0 = drop * path.price;
-	p1 = drop * back.price;
-	profit = p0 * p1 - 1;
+	src = offer.src;
+	dst = offer.dst;
+	pair = pair.split(">");
+	base = pair.shift();
+	base = saldo[base];
+	counter = pair.shift();
+	counter = saldo[counter];
 
-	if (!stats) {
-		stats = {
-			ema: profit
-		};
-		round[orig] = stats;
-	}
+	if (base < 0)
+		src *= -nassets;
 
-	stats.count = Math.min(mincount, path.count, back.count);
-	stats.ema = (stats.ema + profit) / 2;
-	stats.profit = profit;
-	stats.time = Math.min(path.time, back.time);
+	if (counter < 0)
+		dst *= -nassets;
+
+	v0 = base * counter;
+	v1 = (base - src) * (counter + dst);
+
+	path.profit = v1 / v0 - 1;
 }
 
 function update(data)
@@ -502,6 +491,10 @@ function update(data)
 			alt: path.paths_computed,
 			human: getprice(src, dst),
 			price: dst.value / src.value,
+			offer: {
+				src: src.value,
+				dst: dst.value
+			},
 			time: date.getTime(),
 			cost: cost,
 			amount: amount
@@ -515,7 +508,7 @@ function update(data)
 
 	best = choose();
 	if (best) {
-		var rank = round[best].rank;
+		var rank = paths[best].rank;
 
 		rank *= 100;
 		rank = rank.toFixed(3) + "%";
@@ -626,22 +619,19 @@ function listen()
 		find("XRP");
 }
 
-function estimate(stats)
+function estimate(path)
 {
 	var date = new Date();
-	var since = date.getTime() - stats.time;
-	var count = stats.count;
-	var profit = stats.profit;
-	var ema = stats.ema;
+	var since = date.getTime() - path.time;
+	var count = path.count;
+	var profit = path.profit;
 
 	if (maxlag < since)
 		return -1;
 	else if (count < mincount)
 		return -1;
-	else if (profit <= 0)
-		return profit;
 	else
-		return ema;
+		return profit;
 }
 
 function choose()
@@ -666,11 +656,11 @@ function choose()
 		return best;
 	}
 
-	for (pair in round) {
-		var stats = round[pair];
-		var rank = estimate(stats);
+	for (pair in paths) {
+		var path = paths[pair];
+		var rank = estimate(path);
 
-		stats.rank = rank;
+		path.rank = rank;
 		good[pair] = rank;
 	}
 
@@ -696,14 +686,9 @@ function watchdog()
 
 			for (pair in paths) {
 				var dst = pair.split(">").pop();
-				var stats = getround(pair);
 
-				if (dst == target) {
-					if (stats)
-						stats.count = 0;
-
+				if (dst == target)
 					paths[pair].count = 0;
-				}
 			}
 
 			twin.disconnect();
