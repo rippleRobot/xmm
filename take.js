@@ -436,7 +436,15 @@ function judge(pair)
 {
 	var path = paths[pair];
 	var offer = path.offer;
-	var src, dst, base, counter, v0, v1;
+	var src, dst, base, counter, v0, v1, drop;
+	var nassets = 0;
+	var noffers, unit;
+
+	nassets = 0;
+	for (unit in saldo)
+		++nassets;
+
+	noffers = nassets * nassets;
 
 	if (!offer)
 		return 0;
@@ -449,16 +457,11 @@ function judge(pair)
 	counter = pair.shift();
 	counter = saldo[counter];
 
-	if (base < 0)
-		src *= -nassets;
-
-	if (counter < 0)
-		dst *= -nassets;
-
 	v0 = base * counter;
 	v1 = (base - src) * (counter + dst);
+	drop = noffers * fee / saldo["XRP"];
 
-	path.profit = v1 / v0 - 1;
+	path.profit = v1 / v0 - drop - 1;
 }
 
 function update(data)
