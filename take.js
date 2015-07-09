@@ -65,7 +65,7 @@ function start()
 	for (target in targets) {
 		var head = targets[target];
 
-		head.text(target);
+		head.text(abbr(target));
 		head.removeClass("active");
 	}
 
@@ -74,10 +74,15 @@ function start()
 	state.addClass("info");
  }
 
-	remote.once("ledger_closed", getsaldo);
+	remote.once("ledger_closed", getstate);
 }
 
-function getsaldo(data)
+function abbr(unit)
+{
+	return unit.replace(/^(...:....).*$/, "$1\u2026");
+}
+
+function getstate(data)
 {
 	pending = false;
 	ledger = data.ledger_index;
@@ -86,65 +91,18 @@ function getsaldo(data)
 		inc: data.reserve_inc / 1e6
 	};
 
-	if (!ledger) {
-		console.error("Failed to get ledger");
-		return start();
-	}
-
-	remote.request_account_info({
-		account: id,
-		ledger: ledger
-	}, setxrp);
+	if (ledger)
+		getsaldo(ledger, setsaldo);
+	else
+		start();
 }
 
-function setxrp(error, response)
+function setsaldo(dict)
 {
-	var data, balance, count;
-
-	if (error) {
-		console.error("Failed to get balance");
+	if (!dict)
 		return start();
-	}
 
-	saldo = {};
-
-	data = response.account_data;
-	balance = parseInt(data.Balance) / 1e6;
-	count = data.OwnerCount;
-	reserve = reserve.base + count * reserve.inc;
-
-	saldo["XRP"] = balance - reserve;
-
-	remote.request_account_lines({
-		account: id,
-		ledger: ledger
-	}, setlines);
-}
-
-function setlines(error, response)
-{
-	var lines, i, unit;
-
-	if (error) {
-		console.error("Failed to get lines");
-		return start();
-	}
-
-	lines = response.lines;
-	for (i = 0; i < lines.length; i++) {
-		var line = lines[i];
-		var balance = parseFloat(line.balance);
-		var active = line.no_ripple;
-		var currency = line.currency;
-		var account = line.account;
-
-		if (active) {
-			if (saldo[currency])
-				saldo[currency] += balance;
-			else
-				saldo[currency] = balance;
-		}
-	}
+	saldo = dict;
 
  if ($) {
 	if (!deposit) {
@@ -164,6 +122,55 @@ function setlines(error, response)
 	oldsaldo = saldo;
 
 	listen();
+}
+
+function getsaldo(index, cb)
+{
+	var dict = {};
+
+	function setxrp(error, response)
+	{
+		if (error)
+			return cb();
+
+		dict["XRP"] = response.to_number() / 1e6;
+
+		remote.request_account_lines({
+			account: id,
+			ledger: index
+		}, setlines);
+	}
+
+	function setlines(error, response)
+	{
+		var lines, i, unit;
+
+		if (error)
+			return cb();
+
+		lines = response.lines;
+		for (i = 0; i < lines.length; i++) {
+			var line = lines[i];
+			var balance = parseFloat(line.balance);
+			var active = line.no_ripple;
+			var currency = line.currency;
+			var account = line.account;
+
+			if (active) {
+				unit = currency + ":" + account;
+
+				if (0 < balance)
+					dict[unit] = balance;
+			}
+		}
+
+		cb(dict);
+	}
+
+	remote.request_account_balance({
+		account: id,
+		ledger: index
+	}, setxrp);
 }
 
 function showdiff()
@@ -240,7 +247,7 @@ function addunit(unit)
 
 	src = template.row.clone();
 	dst = template.header.clone();
-	dst.text(unit);
+	dst.text(abbr(unit));
 	header.append(dst);
 	src.append(dst.clone());
 	table.append(src);
