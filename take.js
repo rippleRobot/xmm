@@ -38,7 +38,7 @@ var template = {};
 var targets = {};
 var pending = true;
 var ready = false;
-var busy = 0;
+var busy = false;
 var stall = 1e4;
 var maxlag = 5e3;
 var mincount = 5;
@@ -171,7 +171,7 @@ function setstate(error, response)
 	if (n)
 		stake /= n;
 	else
-		stake = 0.05;
+		stake = 0.01;
 
 	if (!noffers)
 		noffers = 2;
@@ -264,50 +264,32 @@ function showdiff()
 	console.info(dict);
 }
 
-function pay(path)
+function trade(pair)
 {
+	var path = paths[pair];
 	var tx = remote.transaction();
 
 	tx.payment(id, id, path.amount);
 	tx.paths(path.alt);
 	tx.sendMax(path.cost);
-	tx.set_flags("PartialPayment");
 	tx.secret(key);
 
-	return tx;
-}
-
-function trade(orig)
-{
-	var pair = orig.split("/").join(">");
-	var riap = orig.split("/").reverse().join(">");
-	var path = paths[pair];
-	var back = paths[riap];
-	var buy = pay(path);
-	var sell = pay(back);
-
-	function log(error, response)
+	function check(error, response)
 	{
 		if (error)
 			console.error(error.result);
 
-		--busy;
-		if (busy < 0)
-			busy = 0;
-
-		if (!busy) {
-			ready = true;
-			request();
-		}
+		busy = false;
+		ready = true;
+		request();
 	}
 
-	if (0 < busy)
+	if (busy)
 		return;
 
 	ready = false;
-	busy += 2;
-	buy.submit(log);
-	sell.submit(log);
+	busy = true;
+	tx.submit(check);
 }
 
 function addunit(unit)
