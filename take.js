@@ -248,20 +248,26 @@ function getsaldo(index, cb)
 function showdiff()
 {
 	var dict = {};
-	var unit;
+	var product = 1;
+	var nassets = 0;
+	var unit, n;
 
 	for (unit in saldo) {
 		var last = saldo[unit];
 		var prev = oldsaldo[unit];
 
+		product *= last;
+		++nassets;
+
 		if (!prev)
 			prev = 0;
 
-		if (last.toPrecision(5) != prev.toPrecision(5))
+		if (last.toPrecision(6) != prev.toPrecision(6))
 			dict[unit] = last - prev;
 	}
 
-	console.info(dict);
+	product = Math.pow(product, 1 / nassets);
+	console.info(product.toPrecision(8), dict);
 }
 
 function trade(pair)
@@ -573,7 +579,8 @@ function update(data)
 
 		rank *= 1e4;
 		rank = rank.toFixed(3) + "bp";
-		console.info(best, rank);
+		if (!busy)
+			console.info(best, rank);
 
 		if (key)
 			trade(best);
