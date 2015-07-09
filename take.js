@@ -185,7 +185,7 @@ function showdiff()
 		if (!prev)
 			prev = 0;
 
-		if (last.toPrecision(6) != prev.toPrecision(6))
+		if (last.toPrecision(5) != prev.toPrecision(5))
 			dict[unit] = last - prev;
 	}
 
@@ -328,7 +328,7 @@ function show()
 			change = "\u25CF";
 		}
 
-		balance = change + " " + balance.toPrecision(6);
+		balance = change + " " + balance.toPrecision(5);
 		diff = diff.toFixed(1) + "%";
 		cell.data("update", balance + ", " + diff);
 		replace(cell);
@@ -360,7 +360,7 @@ function convert(amount)
 	function getunit(amount)
 	{
 		if ("object" == typeof amount)
-			return amount.currency;
+			return amount.currency + ":" + amount.issuer;
 		else
 			return "XRP";
 	}
@@ -384,12 +384,8 @@ function gethuman(json)
 	var value = amount.value;
 	var currency = amount.currency;
 	var balance = saldo[currency];
-	var part = value / balance;
 
-	amount = value.toPrecision(6) + " " + currency;
-	part *= 100;
-	part = part.toFixed(0) + "%";
-	return amount + " (" + part + ")";
+	return value.toPrecision(5) + " " + abbr(currency);
 }
 
 function getprice(src, dst)
@@ -409,7 +405,7 @@ function getprice(src, dst)
 		unit = base;
 	}
 
-	return price.toPrecision(6) + " " + unit;
+	return price.toPrecision(5) + " " + unit.replace(/:.*$/, "");
 }
 
 function getround(pair)
@@ -508,10 +504,6 @@ function update(data)
 		var pair = src.currency + ">" + dst.currency;
 		var prev = paths[pair];
 
-		if ("XRP" != src.currency)
-			if ("XRP" != dst.currency)
-				continue;
-
  if ($) {
 		if (!pairs[pair])
 			continue;
@@ -552,10 +544,41 @@ function update(data)
  }
 }
 
+function listsrc(dst)
+{
+	var list = [];
+	var unit;
+
+	function getsrc(src)
+	{
+		var dict = {};
+		var issuer;
+
+		src = src.split(":");
+		dict.currency = src.shift();
+
+		issuer = src.shift();
+		if (issuer)
+			dict.issuer = issuer;
+
+		return dict;
+	}
+
+	dst = convert(dst);
+	dst = dst.currency;
+
+	for (unit in saldo)
+		if (dst != unit)
+			list.push(getsrc(unit));
+
+	return list;
+}
+
 function setup()
 {
 	var dst = ripple.Amount.from_json(this.dst);
 	var path = this.pathFind({
+		src_currencies: listsrc(this.dst),
 		dst_amount: dst,
 		dst_account: id,
 		src_account: id
