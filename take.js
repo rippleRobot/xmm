@@ -579,8 +579,8 @@ function update(data)
 	if (best) {
 		var rank = paths[best].rank;
 
-		rank *= 100;
-		rank = rank.toFixed(3) + "%";
+		rank *= 1e4;
+		rank = rank.toFixed(3) + "bp";
 		console.info(best, rank);
 
 		if (key)
