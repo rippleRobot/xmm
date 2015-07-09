@@ -44,7 +44,7 @@ var stall = 1e4;
 var maxlag = 3e3;
 var mincount = 5;
 var delta = 0.01;
-var ledger, saldo, ws, deposit, reserve;
+var ledger, saldo, ws, deposit;
 var table, header, state;
 
 function start()
@@ -87,10 +87,6 @@ function getstate(data)
 {
 	pending = false;
 	ledger = data.ledger_index;
-	reserve = {
-		base: data.reserve_base / 1e6,
-		inc: data.reserve_inc / 1e6
-	};
 
 	if (ledger)
 		getsaldo(ledger, setsaldo);
