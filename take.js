@@ -528,7 +528,7 @@ function judge(pair)
 
 	v0 = base * counter;
 	v1 = (base - src) * (counter + dst);
-	drop = noffers * fee / saldo["XRP"];
+	drop = noffers * fee / (2 * saldo["XRP"]);
 
 	path.profit = v1 / v0 - drop - 1;
 }
