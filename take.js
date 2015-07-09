@@ -567,9 +567,6 @@ function update(data)
 		};
 
 		judge(pair);
-
-		if ("XRP" == dst.currency)
-			find(src.currency);
 	}
 
 	best = choose();
@@ -677,12 +674,15 @@ function find(target)
 
 function listen()
 {
+	var unit;
+
 	ready = true;
 
 	if (pending)
 		request();
 	else
-		find("XRP");
+		for (unit in saldo)
+			find(unit);
 }
 
 function estimate(path)
