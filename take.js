@@ -450,6 +450,16 @@ function convert(amount)
 	return dict;
 }
 
+function gethuman(json)
+{
+	var amount = convert(json);
+	var value = amount.value;
+	var currency = amount.currency;
+	var balance = saldo[currency];
+
+	return value.toPrecision(5) + " " + abbr(currency);
+}
+
 function getprice(src, dst)
 {
 	var base = src.currency;
@@ -662,8 +672,10 @@ function find(target)
 
 	dst = amount(stake * saldo[target], target);
 
- if ($)
+ if ($) {
+	targets[target].text(gethuman(dst));
 	targets[target].addClass("active");
+ }
 
 	socket = new ripple.Remote(options);
 	socket.dst = dst;
