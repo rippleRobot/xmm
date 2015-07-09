@@ -168,7 +168,13 @@ function setstate(error, response)
 		}
 	}
 
-	stake /= n;
+	if (n)
+		stake /= n;
+	else
+		stake = 0.05;
+
+	if (!noffers)
+		noffers = 2;
 
  if ($) {
 	if (!deposit) {
