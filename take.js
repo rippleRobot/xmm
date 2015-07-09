@@ -20,8 +20,8 @@ var servers = [
 	"wss://s-west.ripple.com:443"
 ];
 var options = {
-	max_fee: 3000000,
-	fee_cushion: 3,
+	max_fee: 30000,
+	fee_cushion: 1,
 	servers: host ? servers.concat([
 		host
 	]) : servers,
@@ -43,6 +43,7 @@ var busy = 0;
 var stall = 1e4;
 var maxlag = 3e3;
 var mincount = 5;
+var delta = 0.01;
 var ledger, saldo, ws, deposit, reserve;
 var table, header, state;
 
@@ -594,27 +595,24 @@ function find(target)
 	var path = paths[target + ">XRP"];
 	var dst, twin;
 
-	function amount(value, currency)
+	function amount(value, unit)
 	{
-		if ("XRP" == currency)
+		var dict = {};
+
+		if ("XRP" == unit)
 			return Math.round(value * 1e6);
 
-		return {
-			value: value.toFixed(20),
-			currency: currency,
-			issuer: id
-		};
+		unit = unit.split(":");
+		dict.currency = unit.shift();
+		dict.issuer = unit.shift();
+		dict.value = value.toFixed(20);
+		return dict;
 	}
 
 	if (socket)
 		return;
 
-	if (path)
-		dst = path.cost;
-	else if ("XRP" == target)
-		dst = amount(saldo["XRP"] / 2, "XRP");
-	else
-		return;
+	dst = amount(delta * saldo[target], target);
 
  if ($) {
 	targets[target].text(gethuman(dst));
