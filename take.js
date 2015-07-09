@@ -42,8 +42,7 @@ var busy = 0;
 var stall = 1e4;
 var maxlag = 3e3;
 var mincount = 5;
-var delta = 0.01;
-var ledger, saldo, ws, deposit;
+var ledger, saldo, ws, deposit, offers, noffers, stake;
 var table, header, state;
 
 function start()
@@ -98,6 +97,78 @@ function setsaldo(dict)
 		return start();
 
 	saldo = dict;
+
+	remote.request_account_offers({
+		account: id,
+		ledger: ledger
+	}, setstate);
+}
+
+function setstate(error, response)
+{
+	var n = 0;
+	var list, i;
+
+	function getunit(amount)
+	{
+		var currency, issuer;
+
+		if ("string" == typeof amount)
+			return "XRP";
+
+		currency = amount.currency;
+		issuer = amount.issuer;
+		return currency + ":" + issuer;
+	}
+
+	function getvalue(amount)
+	{
+		if ("object" == typeof amount)
+			return parseFloat(amount.value);
+		else
+			return parseFloat(amount) / 1e6;
+	}
+
+	if (error)
+		return start();
+
+	offers = {};
+
+	list = response.offers;
+	noffers = list.length;
+	stake = 0;
+
+	for (i = 0; i < noffers; i++) {
+		var offer = list[i];
+		var src = offer.taker_gets;
+		var dst = offer.taker_pays;
+		var base = getunit(src);
+		var counter = getunit(dst);
+		var pair = base + ">" + counter;
+
+		src = getvalue(src);
+		dst = getvalue(dst);
+
+		offers[pair] = {
+			seq: offer.seq,
+			src: src,
+			dst: dst,
+			dup: offers[pair]
+		};
+
+		base = saldo[base];
+		counter = saldo[counter];
+
+		if ((0 < base) && (0 < counter)) {
+			stake += src / base;
+			++n;
+
+			stake += dst / counter;
+			++n;
+		}
+	}
+
+	stake /= n;
 
  if ($) {
 	if (!deposit) {
@@ -437,14 +508,6 @@ function judge(pair)
 	var path = paths[pair];
 	var offer = path.offer;
 	var src, dst, base, counter, v0, v1, drop;
-	var nassets = 0;
-	var noffers, unit;
-
-	nassets = 0;
-	for (unit in saldo)
-		++nassets;
-
-	noffers = nassets * nassets;
 
 	if (!offer)
 		return 0;
@@ -594,7 +657,7 @@ function find(target)
 	if (socket)
 		return;
 
-	dst = amount(delta * saldo[target], target);
+	dst = amount(stake * saldo[target], target);
 
  if ($)
 	targets[target].addClass("active");
