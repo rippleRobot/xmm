@@ -27,7 +27,7 @@ function create(offer, pair)
 	function check(error, response)
 	{
 		if (error)
-			console.error("Failed to create offer");
+			console.error(error.result);
 
 		process.once("submit", create);
 		process.emit("ready");
