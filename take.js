@@ -14,8 +14,8 @@ var host = env.ARB_HOST;
  }
 
 var servers = [
-	"wss://s-east.ripple.com:443",
 	"wss://s-west.ripple.com:443",
+	"wss://s-east.ripple.com:443",
 	"wss://s1.ripple.com:443",
 	"wss://ripple.gatehub.net:443"
 ];
