@@ -635,6 +635,20 @@ function setup()
 	path.on("update", update);
 }
 
+function mkamount(value, unit)
+{
+	var dict = {};
+
+	if ("XRP" == unit)
+		return Math.round(value * 1e6);
+
+	unit = unit.split(":");
+	dict.currency = unit.shift();
+	dict.issuer = unit.shift();
+	dict.value = value.toFixed(20);
+	return dict;
+}
+
 function find(target)
 {
 	var date = new Date();
@@ -642,24 +656,10 @@ function find(target)
 	var path = paths[target + ">XRP"];
 	var dst, twin;
 
-	function amount(value, unit)
-	{
-		var dict = {};
-
-		if ("XRP" == unit)
-			return Math.round(value * 1e6);
-
-		unit = unit.split(":");
-		dict.currency = unit.shift();
-		dict.issuer = unit.shift();
-		dict.value = value.toFixed(20);
-		return dict;
-	}
-
 	if (socket)
 		return;
 
-	dst = amount(stake * saldo[target], target);
+	dst = mkamount(stake * saldo[target], target);
 
  if ($) {
 	targets[target].text(gethuman(dst));
