@@ -173,9 +173,6 @@ function setstate(error, response)
 	else
 		stake = 0.01;
 
-	if (!noffers)
-		noffers = 2;
-
  if ($) {
 	if (!deposit) {
 		var json = JSON.stringify(saldo);
@@ -526,7 +523,10 @@ function judge(pair)
 
 	v0 = base * counter;
 	v1 = (base - src) * (counter + dst);
-	drop = noffers * fee / (2 * saldo["XRP"]);
+
+	drop = fee / saldo["XRP"];
+	if (noffers)
+		drop *= noffers;
 
 	path.profit = v1 / v0 - drop - 1;
 }
@@ -700,9 +700,9 @@ function estimate(path)
 	var profit = path.profit;
 
 	if (maxlag < since)
-		return -1;
+		return;
 	else if (count < mincount)
-		return -1;
+		return;
 	else
 		return profit;
 }
@@ -714,7 +714,7 @@ function choose()
 
 	function top(dict)
 	{
-		var high = 0;
+		var high = stake * stake;
 		var pair, best;
 
 		for (pair in dict) {
