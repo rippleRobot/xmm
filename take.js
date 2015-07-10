@@ -468,7 +468,6 @@ function getprice(src, dst)
 function display()
 {
 	var date = new Date();
-	var high = stake * stake;
 	var pair;
 
 	for (pair in pairs) {
@@ -494,8 +493,6 @@ function display()
 
 		if (maxlag < since)
 			cell.addClass("warning");
-		else if (high < profit)
-			cell.addClass("info");
 		else if (0 < profit)
 			cell.addClass("success");
 		else
@@ -717,7 +714,7 @@ function choose()
 
 	function top(dict)
 	{
-		var high = stake * stake;
+		var high = 0;
 		var pair, best;
 
 		for (pair in dict) {
