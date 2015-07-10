@@ -20,8 +20,8 @@ var servers = [
 	"wss://ripple.gatehub.net:443"
 ];
 var options = {
-	max_fee: 300000,
-	fee_cushion: 1,
+	max_fee: 200000,
+	fee_cushion: 2,
 	servers: host ? servers.concat([
 		host
 	]) : servers,
