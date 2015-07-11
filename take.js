@@ -670,7 +670,6 @@ function find(target)
 	socket = new ripple.Remote(options);
 	socket.dst = dst;
 	socket.on("error", slowdown);
-	socket.arbname = "the main socket " + target;
 	socket.connect(setup);
 	socket.time = date.getTime();
 	ws[target] = socket;
@@ -678,7 +677,6 @@ function find(target)
 	twin = new ripple.Remote(options);
 	twin.dst = dst;
 	twin.on("error", slowdown);
-	twin.arbname = "the twin socket " + target;
 	twin.connect(setup);
 	twin.time = date.getTime();
 	socket.twin = twin;
@@ -803,7 +801,6 @@ function tick()
 
 function slowdown()
 {
-	console.error("Unexpected response from", this.arbname);
 	this.disconnect();
 }
 
