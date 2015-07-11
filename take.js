@@ -27,7 +27,25 @@ var options = {
 	]) : servers,
 	trusted: false
 };
-var remote = new ripple.Remote(options);
+
+function shuffle()
+{
+	var list = options.servers;
+	var i;
+
+	for (i = list.length - 1; 0 < i; i--) {
+		var j = Math.floor(Math.random() * (i + 1));
+		var tmp;
+
+		tmp = list[i];
+		list[i] = list[j];
+		list[j] = tmp;
+	}
+
+	return options;
+}
+
+var remote = new ripple.Remote(shuffle());
 var account = remote.account(id);
 var fee = options.max_fee / 1e6;
 var oldsaldo = {};
@@ -660,14 +678,14 @@ function find(target)
 	targets[target].addClass("active");
  }
 
-	socket = new ripple.Remote(options);
+	socket = new ripple.Remote(shuffle());
 	socket.dst = dst;
 	socket.on("error", slowdown);
 	socket.connect(setup);
 	socket.time = date.getTime();
 	ws[target] = socket;
 
-	twin = new ripple.Remote(options);
+	twin = new ripple.Remote(shuffle());
 	twin.dst = dst;
 	twin.on("error", slowdown);
 	twin.connect(setup);
