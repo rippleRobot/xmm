@@ -281,7 +281,7 @@ function showdiff()
 	}
 
 	product = Math.pow(product, 1 / nassets);
-	console.info(product.toPrecision(8), dict);
+	console.info(product.toPrecision(6), dict);
 }
 
 function trade(pair)
@@ -397,7 +397,7 @@ function show()
 			change = "\u25CF";
 		}
 
-		balance = change + " " + balance.toPrecision(5);
+		balance = change + " " + balance.toPrecision(6);
 		diff = diff.toFixed(1) + "%";
 		cell.data("update", balance + ", " + diff);
 		replace(cell);
@@ -451,7 +451,7 @@ function gethuman(json)
 	var currency = amount.currency;
 	var balance = saldo[currency];
 
-	return value.toPrecision(5) + " " + abbr(currency);
+	return value.toPrecision(6) + " " + abbr(currency);
 }
 
 function getprice(src, dst)
@@ -471,7 +471,7 @@ function getprice(src, dst)
 		unit = base;
 	}
 
-	return price.toPrecision(5) + " " + unit.replace(/:.*$/, "");
+	return price.toPrecision(6) + " " + unit.replace(/:.*$/, "");
 }
 
 function display()
