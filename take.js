@@ -38,7 +38,6 @@ var template = {};
 var targets = {};
 var pending = true;
 var ready = false;
-var busy = false;
 var stall = 7e3;
 var maxlag = 3e3;
 var mincount = 3;
@@ -282,16 +281,11 @@ function trade(pair)
 		if (error)
 			console.error(error.result);
 
-		busy = false;
-		ready = true;
-		request();
+		pending = true;
+		listen();
 	}
 
-	if (busy)
-		return;
-
 	ready = false;
-	busy = true;
 	tx.submit(check);
 }
 
@@ -398,9 +392,6 @@ function show()
 
 function request()
 {
-	if (busy)
-		return;
-
 	if (!ready) {
 		pending = true;
 		return;
@@ -581,11 +572,13 @@ function update(data)
 
 		rank *= 1e4;
 		rank = rank.toFixed(3) + "bp";
-		if (!busy)
+
+		if (ready) {
 			console.info(best, rank);
 
-		if (key)
-			trade(best);
+			if (key)
+				trade(best);
+		}
 	}
 
  if ($) {
@@ -749,7 +742,7 @@ function watchdog()
 	var now = date.getTime();
 	var target;
 
-	if (busy)
+	if (!ready)
 		return;
 
 	for (target in ws) {
