@@ -274,7 +274,7 @@ function trade(pair)
 
 	tx.payment(id, id, path.amount);
 	tx.paths(path.alt);
-	tx.sendMax(path.cost);
+	tx.sendMax(path.sendmax);
 	tx.secret(key);
 
 	function check(error, response)
@@ -549,6 +549,7 @@ function update(data)
 		var src = convert(cost);
 		var pair = src.currency + ">" + dst.currency;
 		var prev = paths[pair];
+		var sendmax = src.value * 1.001;
 
  if ($) {
 		if (!pairs[pair])
@@ -567,6 +568,7 @@ function update(data)
 			},
 			time: date.getTime(),
 			cost: cost,
+			sendmax: mkamount(sendmax, src.currency),
 			amount: amount
 		};
 
