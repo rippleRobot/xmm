@@ -39,9 +39,9 @@ var targets = {};
 var pending = true;
 var ready = false;
 var busy = false;
-var stall = 1e4;
-var maxlag = 5e3;
-var mincount = 5;
+var stall = 7e3;
+var maxlag = 3e3;
+var mincount = 3;
 var ledger, saldo, ws, deposit, offers, noffers, stake;
 var table, header, state;
 
