@@ -45,6 +45,20 @@ var mincount = 3;
 var ledger, saldo, ws, deposit, offers, noffers, stake, nassets;
 var table, header, state;
 
+function stop(socket)
+{
+	var finder;
+
+	if (!socket)
+		return;
+
+	finder = socket.finder;
+	if (finder)
+		finder.removeAllListeners();
+
+	socket.disconnect();
+}
+
 function start()
 {
 	var target;
@@ -52,8 +66,8 @@ function start()
 	for (target in ws) {
 		var socket = ws[target];
 
-		socket.twin.disconnect();
-		socket.disconnect();
+		stop(socket.twin);
+		stop(socket);
 	}
 
 	ws = {};
@@ -624,14 +638,15 @@ function listsrc(dst)
 function setup()
 {
 	var dst = ripple.Amount.from_json(this.dst);
-	var path = this.pathFind({
+	var finder = this.pathFind({
 		src_currencies: listsrc(this.dst),
 		dst_amount: dst,
 		dst_account: id,
 		src_account: id
 	});
 
-	path.on("update", update);
+	this.finder = finder;
+	finder.on("update", update);
 }
 
 function mkamount(value, unit)
@@ -781,8 +796,8 @@ function watchdog()
 					paths[pair].count = 0;
 			}
 
-			twin.disconnect();
-			socket.disconnect();
+			stop(twin);
+			stop(socket);
 			delete ws[target];
 			find(target);
 			return;
