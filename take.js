@@ -43,7 +43,7 @@ var stall = 7e3;
 var maxlag = 3e3;
 var mincount = 3;
 var stake = 0.01;
-var ledger, saldo, ws, deposit, offers, nassets;
+var ledger, saldo, ws, deposit, nassets;
 var table, header, state;
 
 function stop(socket)
@@ -118,63 +118,6 @@ function setsaldo(dict)
 	nassets = 0;
 	for (unit in saldo)
 		++nassets;
-
-	remote.request_account_offers({
-		account: id,
-		ledger: ledger
-	}, setstate);
-}
-
-function setstate(error, response)
-{
-	var n = 0;
-	var list, i;
-
-	function getunit(amount)
-	{
-		var currency, issuer;
-
-		if ("string" == typeof amount)
-			return "XRP";
-
-		currency = amount.currency;
-		issuer = amount.issuer;
-		return currency + ":" + issuer;
-	}
-
-	function getvalue(amount)
-	{
-		if ("object" == typeof amount)
-			return parseFloat(amount.value);
-		else
-			return parseFloat(amount) / 1e6;
-	}
-
-	if (error)
-		return start();
-
-	offers = {};
-
-	list = response.offers;
-
-	for (i = 0; i < list.length; i++) {
-		var offer = list[i];
-		var src = offer.taker_gets;
-		var dst = offer.taker_pays;
-		var base = getunit(src);
-		var counter = getunit(dst);
-		var pair = base + ">" + counter;
-
-		src = getvalue(src);
-		dst = getvalue(dst);
-
-		offers[pair] = {
-			seq: offer.seq,
-			src: src,
-			dst: dst,
-			dup: offers[pair]
-		};
-	}
 
  if ($) {
 	if (!deposit) {
