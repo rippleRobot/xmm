@@ -535,7 +535,7 @@ function judge(pair)
 
 	drop = fee / saldo["XRP"];
 	if (noffers)
-		drop *= noffers;
+		drop *= 1 + noffers;
 
 	path.profit = (v1 / v0 - drop - 1) / nassets;
 }
@@ -572,7 +572,7 @@ function update(data)
 			human: getprice(src, dst),
 			price: dst.value / src.value,
 			offer: {
-				src: src.value,
+				src: sendmax,
 				dst: dst.value
 			},
 			time: date.getTime(),
