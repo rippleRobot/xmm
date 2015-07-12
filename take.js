@@ -850,8 +850,8 @@ function main()
 	}
  } else {
 	console.info(id);
-	setInterval(request, 6e4);
-	setInterval(chkalive, 6e4);
+	setInterval(request, 3e5);
+	setInterval(chkalive, 3e5);
  }
 
 	setInterval(tick, 1e3);
