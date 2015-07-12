@@ -64,12 +64,8 @@ function start()
 {
 	var target;
 
-	for (target in ws) {
-		var socket = ws[target];
-
-		stop(socket.twin);
-		stop(socket);
-	}
+	for (target in ws)
+		stop(ws[target]);
 
 	ws = {};
 	paths = {};
@@ -608,7 +604,7 @@ function find(target)
 {
 	var date = new Date();
 	var socket = ws[target];
-	var dst, twin;
+	var dst;
 
 	if (socket)
 		return;
@@ -626,13 +622,6 @@ function find(target)
 	socket.connect(setup);
 	socket.time = date.getTime();
 	ws[target] = socket;
-
-	twin = new ripple.Remote(shuffle());
-	twin.dst = dst;
-	twin.on("error", slowdown);
-	twin.connect(setup);
-	twin.time = date.getTime();
-	socket.twin = twin;
 }
 
 function listen()
@@ -707,8 +696,7 @@ function watchdog()
 
 	for (target in ws) {
 		var socket = ws[target];
-		var twin = socket.twin;
-		var time = Math.min(socket.time, twin.time);
+		var time = socket.time;
 
 		if (stall < now - time) {
 			var pair;
@@ -720,7 +708,6 @@ function watchdog()
 					paths[pair].count = 0;
 			}
 
-			stop(twin);
 			stop(socket);
 			delete ws[target];
 			find(target);
