@@ -422,8 +422,8 @@ function display()
 
 		profit *= 1e4;
 		profit = profit.toFixed(1) + "\u2031";
-		part = "(" + part.toFixed(1) + "%)";
-		cell.text(human + ", " + profit + " " + part);
+		part = part.toFixed(1) + "%";
+		cell.text(human + " " + profit + " " + part);
 	}
 }
 
