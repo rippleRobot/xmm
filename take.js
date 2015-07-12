@@ -36,6 +36,7 @@ var paths = {};
 var units = {};
 var template = {};
 var targets = {};
+var alive = false;
 var pending = true;
 var ready = false;
 var stall = 7e3;
@@ -182,8 +183,6 @@ function setstate(error, response)
 	}
 
 	show();
- } else {
-	console.info(new Date());
  }
 
 	showdiff();
@@ -262,8 +261,9 @@ function showdiff()
 			dict[unit] = last - prev;
 	}
 
+	alive = true;
 	product = Math.pow(product, 1 / nassets);
-	console.info(product.toPrecision(6), dict);
+	console.info(new Date(), product.toPrecision(6), dict);
 }
 
 function trade(pair)
@@ -814,6 +814,14 @@ function slowdown()
 	this.disconnect();
 }
 
+function chkalive()
+{
+	if (alive)
+		alive = false;
+	else
+		process.exit();
+}
+
 function main()
 {
  if ($) {
@@ -842,6 +850,8 @@ function main()
 	}
  } else {
 	console.info(id);
+	setInterval(request, 6e4);
+	setInterval(chkalive, 6e4);
  }
 
 	setInterval(tick, 1e3);
