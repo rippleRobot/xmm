@@ -732,7 +732,7 @@ function tick()
 
 function slowdown()
 {
-	this.disconnect();
+	stop(this);
 }
 
 function chkalive()
