@@ -42,7 +42,7 @@ var ready = false;
 var stall = 7e3;
 var maxlag = 3e3;
 var mincount = 3;
-var ledger, saldo, ws, deposit, offers, noffers, stake;
+var ledger, saldo, ws, deposit, offers, noffers, stake, nassets;
 var table, header, state;
 
 function start()
@@ -93,10 +93,16 @@ function getstate(data)
 
 function setsaldo(dict)
 {
+	var unit;
+
 	if (!dict)
 		return start();
 
 	saldo = dict;
+
+	nassets = 0;
+	for (unit in saldo)
+		++nassets;
 
 	remote.request_account_offers({
 		account: id,
@@ -244,7 +250,6 @@ function showdiff()
 {
 	var dict = {};
 	var product = 1;
-	var nassets = 0;
 	var unit, n;
 
 	for (unit in saldo) {
@@ -252,7 +257,6 @@ function showdiff()
 		var prev = oldsaldo[unit];
 
 		product *= last;
-		++nassets;
 
 		if (!prev)
 			prev = 0;
