@@ -27,25 +27,7 @@ var options = {
 	]) : servers,
 	trusted: false
 };
-
-function shuffle()
-{
-	var list = options.servers;
-	var i;
-
-	for (i = list.length - 1; 0 < i; i--) {
-		var j = Math.floor(Math.random() * (i + 1));
-		var tmp;
-
-		tmp = list[i];
-		list[i] = list[j];
-		list[j] = tmp;
-	}
-
-	return options;
-}
-
-var remote = new ripple.Remote(shuffle());
+var remote = new ripple.Remote(options);
 var account = remote.account(id);
 var fee = options.max_fee / 1e6;
 var oldsaldo = {};
@@ -287,7 +269,7 @@ function showdiff()
 function trade(pair)
 {
 	var path = paths[pair];
-	var tx = path.socket.transaction();
+	var tx = remote.transaction();
 
 	tx.payment(id, id, path.amount);
 	tx.paths(path.alt);
@@ -660,6 +642,23 @@ function mkamount(value, unit)
 	dict.issuer = unit.shift();
 	dict.value = value.toFixed(20);
 	return dict;
+}
+
+function shuffle()
+{
+	var list = options.servers;
+	var i;
+
+	for (i = list.length - 1; 0 < i; i--) {
+		var j = Math.floor(Math.random() * (i + 1));
+		var tmp;
+
+		tmp = list[i];
+		list[i] = list[j];
+		list[j] = tmp;
+	}
+
+	return options;
 }
 
 function find(target)
