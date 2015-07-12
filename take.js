@@ -366,16 +366,6 @@ function convert(amount)
 	return dict;
 }
 
-function gethuman(json)
-{
-	var amount = convert(json);
-	var value = amount.value;
-	var currency = amount.currency;
-	var balance = saldo[currency];
-
-	return value.toPrecision(6) + " " + abbr(currency);
-}
-
 function getprice(src, dst)
 {
 	var base = src.currency;
@@ -407,6 +397,7 @@ function display()
 		var cell = pairs[pair];
 		var path = paths[pair];
 		var profit = path ? path.profit : -1;
+		var part = 100 * stake;
 		var since, human;
 
 		if (src == dst)
@@ -431,7 +422,8 @@ function display()
 
 		profit *= 1e4;
 		profit = profit.toFixed(1) + "\u2031";
-		cell.text(human + ", " + profit);
+		part = "(" + part.toFixed(1) + "%)";
+		cell.text(human + ", " + profit + " " + part);
 	}
 }
 
@@ -612,7 +604,6 @@ function find(target)
 	dst = mkamount(stake * saldo[target], target);
 
  if ($) {
-	targets[target].text(gethuman(dst));
 	targets[target].addClass("active");
  }
 
