@@ -523,7 +523,7 @@ function judge(pair)
 	if (noffers)
 		drop *= noffers;
 
-	path.profit = v1 / v0 - drop - 1;
+	path.profit = (v1 / v0 - drop - 1) / nassets;
 }
 
 function update(data)
