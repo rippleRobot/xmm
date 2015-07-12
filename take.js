@@ -42,7 +42,8 @@ var ready = false;
 var stall = 7e3;
 var maxlag = 3e3;
 var mincount = 3;
-var ledger, saldo, ws, deposit, offers, noffers, stake, nassets;
+var stake = 0.01;
+var ledger, saldo, ws, deposit, offers, nassets;
 var table, header, state;
 
 function stop(socket)
@@ -155,10 +156,8 @@ function setstate(error, response)
 	offers = {};
 
 	list = response.offers;
-	noffers = list.length;
-	stake = 0;
 
-	for (i = 0; i < noffers; i++) {
+	for (i = 0; i < list.length; i++) {
 		var offer = list[i];
 		var src = offer.taker_gets;
 		var dst = offer.taker_pays;
@@ -175,23 +174,7 @@ function setstate(error, response)
 			dst: dst,
 			dup: offers[pair]
 		};
-
-		base = saldo[base];
-		counter = saldo[counter];
-
-		if ((0 < base) && (0 < counter)) {
-			stake += src / base;
-			++n;
-
-			stake += dst / counter;
-			++n;
-		}
 	}
-
-	if (n)
-		stake /= n;
-	else
-		stake = 0.01;
 
  if ($) {
 	if (!deposit) {
@@ -534,8 +517,6 @@ function judge(pair)
 	v1 = (base - src) * (counter + dst);
 
 	drop = fee / saldo["XRP"];
-	if (noffers)
-		drop *= 1 + noffers;
 
 	path.profit = (v1 / v0 - drop - 1) / nassets;
 }
