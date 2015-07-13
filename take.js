@@ -54,7 +54,7 @@ function stop(socket)
 
 	finder = socket.finder;
 	if (finder)
-		finder.removeAllListeners();
+		finder.removeAllListeners("update");
 
 	socket.disconnect();
 }
