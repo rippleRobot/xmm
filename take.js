@@ -130,6 +130,9 @@ function setsaldo(dict)
 	show();
  }
 
+	if (!optimum)
+		optimum = Math.sqrt(fee / saldo["XRP"]);
+
 	showdiff();
 	oldsaldo = saldo;
 
@@ -189,6 +192,7 @@ function showdiff()
 {
 	var dict = {};
 	var product = 1;
+	var stake = optimum;
 	var unit, n;
 
 	for (unit in saldo) {
@@ -206,7 +210,10 @@ function showdiff()
 
 	alive = true;
 	product = Math.pow(product, 1 / nassets);
-	console.info(new Date(), product.toPrecision(6), dict);
+	stake *= 100;
+	stake = stake.toFixed(3) + "%";
+	product = product.toPrecision(6);
+	console.info(new Date(), stake, product, dict);
 }
 
 function trade(pair)
@@ -369,14 +376,14 @@ function convert(amount)
 	return dict;
 }
 
-function gethuman(json)
+function gethuman(json, stake)
 {
 	var amount = convert(json);
-	var value = amount.value;
-	var currency = amount.currency;
-	var balance = saldo[currency];
+	var currency = abbr(amount.currency);
 
-	return value.toPrecision(6) + " " + abbr(currency);
+	stake *= 100;
+	stake = stake.toFixed(3) + "%";
+	return stake + " " + currency;
 }
 
 function getprice(src, dst)
@@ -609,12 +616,35 @@ function shuffle()
 	return options;
 }
 
+function optimize()
+{
+	var high = -1;
+	var pair, best, socket;
+
+	for (pair in paths) {
+		var path = paths[pair];
+		var ema = path.ema;
+
+		if (high < ema) {
+			high = ema;
+			best = pair;
+		}
+	}
+
+	if (best)
+		socket = ws[best.split(">").pop()];
+
+	if (socket)
+		return socket.stake;
+	else
+		return optimum;
+}
+
 function getstake()
 {
 	var rnd = Math.pow(Math.PI / 2, 2 * Math.random() - 1);
 
-	if (!optimum)
-		optimum = Math.sqrt(fee / saldo["XRP"]);
+	optimum = optimize();
 
 	return rnd * optimum;
 }
@@ -623,15 +653,16 @@ function find(target)
 {
 	var date = new Date();
 	var socket = ws[target];
+	var stake = getstake();
 	var dst, twin;
 
 	if (socket)
 		return;
 
-	dst = mkamount(getstake() * saldo[target], target);
+	dst = mkamount(stake * saldo[target], target);
 
  if ($) {
-	targets[target].text(gethuman(dst));
+	targets[target].text(gethuman(dst, stake));
 	targets[target].addClass("active");
  }
 
@@ -640,6 +671,7 @@ function find(target)
 	socket.on("error", slowdown);
 	socket.connect(setup);
 	socket.time = date.getTime();
+	socket.stake = stake;
 	ws[target] = socket;
 
 	twin = new ripple.Remote(shuffle());
