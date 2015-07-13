@@ -603,17 +603,23 @@ function shuffle()
 	return options;
 }
 
+function getstake()
+{
+	var stake = Math.sqrt(fee / saldo["XRP"]);
+
+	return stake;
+}
+
 function find(target)
 {
 	var date = new Date();
 	var socket = ws[target];
-	var stake = Math.sqrt(fee / saldo["XRP"]);
 	var dst, twin;
 
 	if (socket)
 		return;
 
-	dst = mkamount(stake * saldo[target], target);
+	dst = mkamount(getstake() * saldo[target], target);
 
  if ($) {
 	targets[target].text(gethuman(dst));
