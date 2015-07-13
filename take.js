@@ -606,7 +606,8 @@ function shuffle()
 function getstake()
 {
 	var mean = Math.sqrt(fee / saldo["XRP"]);
-	var rnd = Math.exp(Math.random() - 0.5);
+	var dev = Math.PI / 2;
+	var rnd = Math.pow(dev, 2 * Math.random() - 1);
 
 	return mean * rnd;
 }
