@@ -442,7 +442,8 @@ function judge(pair)
 {
 	var path = paths[pair];
 	var offer = path.offer;
-	var src, dst, base, counter, v0, v1, drop;
+	var ema = path.ema;
+	var src, dst, base, counter, v0, v1, drop, profit;
 
 	if (!offer)
 		return 0;
@@ -457,10 +458,15 @@ function judge(pair)
 
 	v0 = base * counter;
 	v1 = (base - src) * (counter + dst);
-
 	drop = fee / saldo["XRP"];
+	profit = (v1 / v0 - drop - 1) / nassets;
 
-	path.profit = (v1 / v0 - drop - 1) / nassets;
+	if (ema)
+		path.ema = (ema + profit) / 2;
+	else
+		path.ema = profit;
+
+	path.profit = profit;
 }
 
 function update(data)
