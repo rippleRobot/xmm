@@ -42,7 +42,7 @@ var ready = false;
 var stall = 7e3;
 var maxlag = 3e3;
 var mincount = 3;
-var ledger, saldo, ws, deposit, nassets;
+var ledger, saldo, ws, deposit, nassets, optimum;
 var table, header, state;
 
 function stop(socket)
@@ -605,11 +605,12 @@ function shuffle()
 
 function getstake()
 {
-	var mean = Math.sqrt(fee / saldo["XRP"]);
-	var dev = Math.PI / 2;
-	var rnd = Math.pow(dev, 2 * Math.random() - 1);
+	var rnd = Math.pow(Math.PI / 2, 2 * Math.random() - 1);
 
-	return mean * rnd;
+	if (!optimum)
+		optimum = Math.sqrt(fee / saldo["XRP"]);
+
+	return rnd * optimum;
 }
 
 function find(target)
