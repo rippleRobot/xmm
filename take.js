@@ -64,8 +64,12 @@ function start()
 {
 	var target;
 
-	for (target in ws)
-		stop(ws[target]);
+	for (target in ws) {
+		var socket = ws[target];
+
+		stop(socket.twin);
+		stop(socket);
+	}
 
 	ws = {};
 	paths = {};
@@ -366,6 +370,16 @@ function convert(amount)
 	return dict;
 }
 
+function gethuman(json)
+{
+	var amount = convert(json);
+	var value = amount.value;
+	var currency = amount.currency;
+	var balance = saldo[currency];
+
+	return value.toPrecision(6) + " " + abbr(currency);
+}
+
 function getprice(src, dst)
 {
 	var base = src.currency;
@@ -397,7 +411,6 @@ function display()
 		var cell = pairs[pair];
 		var path = paths[pair];
 		var profit = path ? path.profit : -1;
-		var part = 100 * stake;
 		var since, human;
 
 		if (src == dst)
@@ -422,8 +435,7 @@ function display()
 
 		profit *= 1e4;
 		profit = profit.toFixed(1) + "\u2031";
-		part = part.toFixed(1) + "%";
-		cell.text(human + " " + profit + " " + part);
+		cell.text(human + ", " + profit);
 	}
 }
 
@@ -596,7 +608,7 @@ function find(target)
 {
 	var date = new Date();
 	var socket = ws[target];
-	var dst;
+	var dst, twin;
 
 	if (socket)
 		return;
@@ -604,6 +616,7 @@ function find(target)
 	dst = mkamount(stake * saldo[target], target);
 
  if ($) {
+	targets[target].text(gethuman(dst));
 	targets[target].addClass("active");
  }
 
@@ -613,6 +626,13 @@ function find(target)
 	socket.connect(setup);
 	socket.time = date.getTime();
 	ws[target] = socket;
+
+	twin = new ripple.Remote(shuffle());
+	twin.dst = dst;
+	twin.on("error", slowdown);
+	twin.connect(setup);
+	twin.time = date.getTime();
+	socket.twin = twin;
 }
 
 function listen()
@@ -687,7 +707,8 @@ function watchdog()
 
 	for (target in ws) {
 		var socket = ws[target];
-		var time = socket.time;
+		var twin = socket.twin;
+		var time = Math.min(socket.time, twin.time);
 
 		if (stall < now - time) {
 			var pair;
@@ -699,6 +720,7 @@ function watchdog()
 					paths[pair].count = 0;
 			}
 
+			stop(twin);
 			stop(socket);
 			delete ws[target];
 			find(target);
