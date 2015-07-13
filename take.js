@@ -502,6 +502,7 @@ function update(data)
  }
 
 		paths[pair] = {
+			stake: dst.value / saldo[dst.currency],
 			socket: socket,
 			count: prev ? prev.count + 1 : 1,
 			alt: path.paths_computed,
@@ -618,8 +619,8 @@ function shuffle()
 
 function optimize()
 {
-	var high = -1;
-	var pair, best, socket;
+	var high = -Infinity;
+	var pair, best;
 
 	for (pair in paths) {
 		var path = paths[pair];
@@ -627,15 +628,12 @@ function optimize()
 
 		if (high < ema) {
 			high = ema;
-			best = pair;
+			best = path.stake;
 		}
 	}
 
 	if (best)
-		socket = ws[best.split(">").pop()];
-
-	if (socket)
-		return socket.stake;
+		return best;
 	else
 		return optimum;
 }
