@@ -605,9 +605,10 @@ function shuffle()
 
 function getstake()
 {
-	var stake = Math.sqrt(fee / saldo["XRP"]);
+	var mean = Math.sqrt(fee / saldo["XRP"]);
+	var rnd = Math.exp(Math.random() - 0.5);
 
-	return stake;
+	return mean * rnd;
 }
 
 function find(target)
