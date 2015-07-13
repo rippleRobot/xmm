@@ -42,7 +42,6 @@ var ready = false;
 var stall = 7e3;
 var maxlag = 3e3;
 var mincount = 3;
-var stake = 0.01;
 var ledger, saldo, ws, deposit, nassets;
 var table, header, state;
 
@@ -608,6 +607,7 @@ function find(target)
 {
 	var date = new Date();
 	var socket = ws[target];
+	var stake = Math.sqrt(fee / saldo["XRP"]);
 	var dst, twin;
 
 	if (socket)
