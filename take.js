@@ -476,6 +476,11 @@ function judge(pair)
 	path.profit = profit;
 }
 
+function abbrpair(pair)
+{
+	return pair.replace(/(...:....).*(...:....).*$/, "$1...>$2...");
+}
+
 function update(data)
 {
 	var date = new Date();
@@ -529,7 +534,7 @@ function update(data)
 		rank = rank.toFixed(3) + "bp";
 
 		if (ready) {
-			console.info(best, rank);
+			console.info(date, abbrpair(best), rank);
 
 			if (key)
 				trade(best);
