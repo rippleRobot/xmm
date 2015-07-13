@@ -42,7 +42,7 @@ var ready = false;
 var stall = 7e3;
 var maxlag = 3e3;
 var mincount = 3;
-var ledger, saldo, ws, deposit, nassets, optimum;
+var ledger, saldo, ws, deposit, nassets, optimum, minstake;
 var table, header, state;
 
 function stop(socket)
@@ -130,8 +130,10 @@ function setsaldo(dict)
 	show();
  }
 
+	minstake = Math.sqrt(fee / saldo["XRP"]);
+
 	if (!optimum)
-		optimum = Math.sqrt(fee / saldo["XRP"]);
+		optimum = minstake;
 
 	showdiff();
 	oldsaldo = saldo;
@@ -637,17 +639,17 @@ function optimize()
 		}
 	}
 
-	if (best)
+	if (minstake < best)
 		return best;
 	else
-		return optimum;
+		return minstake;
 }
 
 function getstake()
 {
 	var rnd = Math.pow(Math.PI / 2, 2 * Math.random() - 1);
 
-	optimum = Math.sqrt(optimize() * optimum);
+	optimum = optimize();
 
 	return rnd * optimum;
 }
