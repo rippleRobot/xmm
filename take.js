@@ -39,9 +39,9 @@ var targets = {};
 var alive = false;
 var pending = true;
 var ready = false;
-var stall = 7e3;
-var maxlag = 3e3;
-var mincount = 3;
+var stall = 1e4;
+var maxlag = 5e3;
+var mincount = 2;
 var ledger, saldo, ws, deposit, nassets, optimum;
 var table, header, state;
 
