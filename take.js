@@ -480,7 +480,9 @@ function judge(pair)
 
 function abbrpair(pair)
 {
-	return pair.replace(/(...:....).*(...:....).*$/, "$1...>$2...");
+	pair = pair.replace(/^(...:....)[^>]*/, "$1...");
+	pair = pair.replace(/(...:....)[^>]*$/, "$1...");
+	return pair;
 }
 
 function update(data)
