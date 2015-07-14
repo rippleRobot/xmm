@@ -53,8 +53,11 @@ function stop(socket)
 		return;
 
 	finder = socket.finder;
-	if (finder)
-		finder.removeListener("update", update);
+	if (finder) {
+		finder.removeAllListeners("update");
+		finder.close();
+		delete socket["finder"];
+	}
 
 	socket.disconnect();
 	socket.zombie = true;
@@ -496,10 +499,8 @@ function update(data)
 	var socket = this.remote;
 	var i, best;
 
-	if (socket.zombie) {
-		console.log(date, "Zombie!");
-		return;
-	}
+	if (socket.zombie)
+		return stop(socket);
 
 	socket.time = date.getTime();
 
