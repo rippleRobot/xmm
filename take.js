@@ -42,7 +42,7 @@ var ready = false;
 var stall = 7e3;
 var maxlag = 3e3;
 var mincount = 3;
-var ledger, saldo, ws, deposit, nassets, optimum, minstake;
+var ledger, saldo, ws, deposit, nassets;
 var table, header, state;
 
 function stop(socket)
@@ -137,11 +137,6 @@ function setsaldo(dict)
 	show();
  }
 
-	minstake = Math.sqrt(fee / saldo["XRP"]);
-
-	if (!optimum)
-		optimum = minstake;
-
 	showdiff();
 	oldsaldo = saldo;
 
@@ -201,7 +196,6 @@ function showdiff()
 {
 	var dict = {};
 	var product = 1;
-	var stake = optimum;
 	var unit, n;
 
 	for (unit in saldo) {
@@ -217,12 +211,8 @@ function showdiff()
 			dict[unit] = last - prev;
 	}
 
-	alive = true;
 	product = Math.pow(product, 1 / nassets);
-	stake *= 100;
-	stake = stake.toFixed(3) + "%";
-	product = product.toPrecision(6);
-	console.info(new Date(), stake, product, dict);
+	console.info(new Date(), product.toPrecision(6), dict);
 }
 
 function trade(pair)
@@ -636,34 +626,11 @@ function shuffle()
 	return options;
 }
 
-function optimize()
-{
-	var high = -Infinity;
-	var pair, best;
-
-	for (pair in paths) {
-		var path = paths[pair];
-		var ema = path.ema;
-
-		if (high < ema) {
-			high = ema;
-			best = path.stake;
-		}
-	}
-
-	if (minstake < best)
-		return best;
-	else
-		return minstake;
-}
-
 function getstake()
 {
-	var rnd = Math.pow(Math.E / 2, 2 * Math.random() - 1);
+	var rnd = Math.pow(Math.PI / 2, 2 * Math.random() - 1);
 
-	optimum = Math.sqrt(optimize() * optimum);
-
-	return rnd * optimum;
+	return rnd * Math.sqrt(fee / saldo["XRP"]);
 }
 
 function find(target)
@@ -703,6 +670,7 @@ function listen()
 {
 	var unit;
 
+	alive = true;
 	ready = true;
 
 	if (pending)
