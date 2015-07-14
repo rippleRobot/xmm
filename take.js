@@ -659,7 +659,7 @@ function optimize()
 
 function getstake()
 {
-	var rnd = Math.pow(Math.PI / 2, 2 * Math.random() - 1);
+	var rnd = Math.pow(Math.E / 2, 2 * Math.random() - 1);
 
 	optimum = Math.sqrt(optimize() * optimum);
 
