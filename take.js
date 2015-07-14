@@ -140,6 +140,7 @@ function setsaldo(dict)
 	showdiff();
 	oldsaldo = saldo;
 
+	alive = true;
 	listen();
 }
 
@@ -670,7 +671,6 @@ function listen()
 {
 	var unit;
 
-	alive = true;
 	ready = true;
 
 	if (pending)
