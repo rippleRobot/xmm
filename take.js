@@ -56,7 +56,7 @@ function stop(socket)
 	if (finder) {
 		finder.removeAllListeners("update");
 		finder.close();
-		delete socket["finder"];
+		delete socket.finder;
 	}
 
 	socket.disconnect();
