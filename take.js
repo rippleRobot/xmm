@@ -55,7 +55,10 @@ function stop(socket)
 	finder = socket.finder;
 	if (finder) {
 		finder.removeAllListeners("update");
-		finder.close();
+		try {
+			finder.close();
+		} catch (e) {
+		}
 		delete socket.finder;
 	}
 
@@ -860,6 +863,7 @@ function main()
 
 	setInterval(tick, 1e3);
 	account.on("transaction", request);
+	remote.on("error", request);
 	remote.connect(listen);
 }
 
