@@ -336,7 +336,7 @@ function show()
 		v0 = base * counter;
 		v1 = (base - src) * (counter + dst);
 
-		return v1 / v0 - 1;
+		return Math.pow(v1 / v0, 1 / nassets) - 1;
 	}
 
 	for (unit in saldo) {
