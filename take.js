@@ -8,8 +8,8 @@ var host = localStorage.bestws;
 var ripple = require("ripple-lib");
 
 var env = process.env;
-var id = env.ARB_ID;
-var key = env.ARB_KEY;
+var id = process.argv[2];
+var key = env[id];
 var host = env.ARB_HOST;
  }
 
