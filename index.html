@@ -20,16 +20,16 @@
 <script>
 var assets = {};
 var series = [];
-var table, template, log, cutoff, from, key, fresh, since;
+var table, template, log, from, key, fresh, since;
 
 function interest(entry)
 {
-	var src = log[cutoff];
+	var src = log[0];
 	var dst = log[entry];
 	var year = 60 * 24 * 365.25;
 	var ratio, period;
 
-	if (cutoff == entry)
+	if (!entry)
 		return 0;
 
 	ratio = dst.value / src.value;
@@ -128,12 +128,6 @@ function load(data)
 
 	log = data;
 
-	cutoff = location.search;
-	cutoff = cutoff.replace("?cutoff=", "");
-	cutoff = parseInt(cutoff);
-	if (!cutoff)
-		cutoff = 0;
-
 	series.push({
 		yAxis: 1,
 		name: $("th#growth").text(),
@@ -146,10 +140,10 @@ function load(data)
 	});
 
 	if (log.length)
-		log[cutoff].value = 100;
+		log[0].value = 100;
 
-	for (i = cutoff; i < log.length; i++) {
-		var prev = log[cutoff == i ? i : i - 1];
+	for (i = 0; i < log.length; i++) {
+		var prev = log[i ? i - 1 : i];
 		var last = log[i];
 		var gain = growth(prev, last);
 
