@@ -165,7 +165,6 @@ function load(data)
 		addpoint(time, last);
 
 		addrow({
-			index: i.toFixed(0),
 			seq: last.seq.toFixed(0),
 			iou: last.iou.toFixed(3),
 			growth: last.growth.toFixed(2) + "\u2031",
@@ -316,7 +315,6 @@ $(main);
 <table class="table table-striped table-bordered text-right">
 <thead>
 <tr>
-<th id="index">Index</th>
 <th id="seq">Sequence</th>
 <th id="iou">Shares</th>
 <th id="date">Date</th>
@@ -330,7 +328,6 @@ $(main);
 
 <tbody>
 <tr class="template">
-<td headers="index"></td>
 <td headers="seq"></td>
 <td headers="iou"></td>
 <td headers="date"></td>
