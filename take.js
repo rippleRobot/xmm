@@ -629,7 +629,7 @@ function shuffle()
 
 function getstake()
 {
-	var rnd = Math.pow(Math.PI / 2, 2 * Math.random() - 1);
+	var rnd = Math.pow(Math.E / 2, 2 * Math.random() - 1);
 
 	return rnd * Math.sqrt(fee / saldo["XRP"]);
 }
