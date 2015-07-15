@@ -493,7 +493,7 @@ function getstats(list)
 		];
 
 		if (1 < part)
-			data.unshift(entry);
+			data.push(entry);
 	}
 
 	$("div.chart").highcharts({
@@ -503,6 +503,7 @@ function getstats(list)
 		},
 		plotOptions: {
 			pie: {
+				startAngle: 90,
 				allowPointSelect: true,
 				dataLabels: {
 					format: format,
