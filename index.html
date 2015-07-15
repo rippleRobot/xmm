@@ -39,6 +39,7 @@ function interest(entry)
 
 function growth(src, dst)
 {
+	var nassets = 0;
 	var k = 1;
 	var p0 = src.prices;
 	var p1 = dst.prices;
@@ -50,9 +51,11 @@ function growth(src, dst)
 
 		if (prev)
 			k *= last / prev;
+
+		++nassets;
 	}
 
-	return k;
+	return Math.pow(k, 1 / nassets);
 }
 
 function addrow(entry, update)
