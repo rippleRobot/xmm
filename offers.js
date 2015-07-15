@@ -1,5 +1,3 @@
-var i1mago = 0;
-
 function monthago()
 {
 	var date = new Date();
@@ -8,17 +6,17 @@ function monthago()
 	var len = history.length;
 	var i;
 
-	for (i = i1mago + 1; i < len; i++) {
-		var entry = history[i];
+	for (i = 0; i < len; i++) {
+		var entry = history[0];
 		var time = entry.time;
 
 		if (time < t1mago)
-			i1mago = i;
+			history.shift();
 		else
 			break;
 	}
 
-	return i1mago;
+	return 0;
 }
 
 function growth(src, dst)
