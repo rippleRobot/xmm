@@ -55,7 +55,7 @@ function growth(src, dst)
 	return k;
 }
 
-function addrow(entry)
+function addrow(entry, update)
 {
 	var row = template.clone();
 	var children = row.children();
@@ -72,7 +72,8 @@ function addrow(entry)
 	children.each(fill);
 	table.prepend(row);
 
-	fresh = fresh.add(row);
+	if (update)
+		fresh = fresh.add(row);
 }
 
 function addasset(unit)
@@ -117,16 +118,12 @@ function addpoint(time, entry)
 	}
 }
 
-function zoom(range)
-{
-	localStorage[key + ">"] = JSON.stringify(range.min);
-}
-
 function load(data)
 {
 	var chart = $("div.chart");
 	var date = new Date();
 	var timezone = date.getTimezoneOffset();
+	var time = from;
 	var i;
 
 	log = data;
@@ -154,8 +151,9 @@ function load(data)
 	for (i = cutoff; i < log.length; i++) {
 		var prev = log[cutoff == i ? i : i - 1];
 		var last = log[i];
-		var time = last.time;
 		var gain = growth(prev, last);
+
+		time = last.time;
 
 		last.value = prev.value * gain;
 		last.date = new Date(last.time);
@@ -165,9 +163,6 @@ function load(data)
 		last.growth = 1e4 * (gain - 1);
 
 		addpoint(time, last);
-
-		if (i < from)
-			continue;
 
 		addrow({
 			index: i.toFixed(0),
@@ -179,13 +174,10 @@ function load(data)
 			date: last.date.toLocaleDateString(),
 			time: last.date.toLocaleTimeString(),
 			interest: last.interest.toFixed(2) + "%"
-		});
+		}, from < time);
 	}
 
-	localStorage[key] = JSON.stringify({
-		html: table.html(),
-		from: log.length
-	});
+	localStorage[key] = time.toFixed(0);
 	fresh.addClass("info");
 
 	Highcharts.setOptions({
@@ -225,9 +217,6 @@ function load(data)
 				style: {
 					fontWeight: "bold"
 				}
-			},
-			events: {
-				afterSetExtremes: zoom
 			},
 			ordinal: false
 		},
@@ -287,14 +276,6 @@ function load(data)
 				count: 1,
 				text: "1w"
 			}, {
-				type: "month",
-				count: 1,
-				text: "1m"
-			}, {
-				type: "month",
-				count: 3,
-				text: "3m"
-			}, {
 				type: "all",
 				text: "All"
 			}]
@@ -309,9 +290,6 @@ function load(data)
 
 function main()
 {
-	var date = new Date();
-	var html;
-
 	table = $("tbody");
 	fresh = $("tr.template");
 	template = fresh.detach();
@@ -319,21 +297,9 @@ function main()
 
 	key = location.href;
 
-	since = parseFloat(localStorage[key + ">"]);
-	if (!since)
-		since = undefined;
-
-	try {
-		var cache = JSON.parse(localStorage[key]);
-
-		html = cache.html;
-		from = cache.from;
-	} catch (error) {
-		html = "";
+	from = parseInt(localStorage[key]);
+	if (!from)
 		from = 0;
-	}
-
-	table.html(html);
 
 	$.getJSON("history.json", load);
 }
