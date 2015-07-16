@@ -565,7 +565,7 @@ function find(target)
 	var date = new Date();
 	var socket = ws[target];
 	var stake = Math.sqrt(fee / saldo["XRP"]);
-	var dst, twin;
+	var dst;
 
 	if (socket)
 		return;
@@ -584,13 +584,6 @@ function find(target)
 	socket.time = date.getTime();
 	socket.stake = stake;
 	ws[target] = socket;
-
-	twin = new ripple.Remote(shuffle());
-	twin.dst = dst;
-	twin.on("error", exit);
-	twin.connect(setup);
-	twin.time = date.getTime();
-	socket.twin = twin;
 }
 
 function estimate(path)
@@ -652,8 +645,7 @@ function watchdog()
 
 	for (target in ws) {
 		var socket = ws[target];
-		var twin = socket.twin;
-		var time = Math.min(socket.time, twin.time);
+		var time = socket.time;
 
 		if (stall < now - time) {
 			var pair;
