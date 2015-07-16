@@ -3,41 +3,33 @@ var $ = this.$;
  if ($) {
 var id = location.search.replace("?", "");
 var key = localStorage[id];
-var host = localStorage.bestws;
  } else {
 var ripple = require("ripple-lib");
 
 var env = process.env;
 var id = process.argv[2];
 var key = env[id];
-var host = env.ARB_HOST;
  }
 
-var servers = [
-	"wss://s-west.ripple.com:443",
-	"wss://s-east.ripple.com:443",
-	"wss://s1.ripple.com:443",
-	"wss://ripple.gatehub.net:443"
-];
 var options = {
 	max_fee: 200000,
 	fee_cushion: 2,
-	servers: host ? servers.concat([
-		host
-	]) : servers,
+	servers: [
+		"wss://s-west.ripple.com:443",
+		"wss://s-east.ripple.com:443",
+		"wss://s1.ripple.com:443",
+		"wss://ripple.gatehub.net:443"
+	],
 	trusted: false
 };
 var remote = new ripple.Remote(options);
 var account = remote.account(id);
 var fee = options.max_fee / 1e6;
-var oldsaldo = {};
 var pairs = {};
 var paths = {};
 var units = {};
 var template = {};
 var targets = {};
-var alive = false;
-var pending = true;
 var ready = false;
 var stall = 1e4;
 var maxlag = 3e3;
@@ -103,7 +95,6 @@ function abbr(unit)
 
 function getstate(data)
 {
-	pending = false;
 	ledger = data.ledger_index;
 
 	if (ledger)
@@ -120,10 +111,7 @@ function setsaldo(dict)
 		return start();
 
 	saldo = dict;
-
-	nassets = 0;
-	for (unit in saldo)
-		++nassets;
+	showgm();
 
  if ($) {
 	if (!deposit) {
@@ -137,11 +125,9 @@ function setsaldo(dict)
 	show();
  }
 
-	showdiff();
-	oldsaldo = saldo;
-
-	alive = true;
-	listen();
+	ready = true;
+	for (unit in saldo)
+		find(unit);
 }
 
 function getsaldo(index, cb)
@@ -193,27 +179,20 @@ function getsaldo(index, cb)
 	}, setxrp);
 }
 
-function showdiff()
+function showgm()
 {
-	var dict = {};
 	var product = 1;
-	var unit, n;
+	var unit;
+
+	nassets = 0;
 
 	for (unit in saldo) {
-		var last = saldo[unit];
-		var prev = oldsaldo[unit];
-
-		product *= last;
-
-		if (!prev)
-			prev = 0;
-
-		if (last.toPrecision(6) != prev.toPrecision(6))
-			dict[unit] = last - prev;
+		product *= saldo[unit];
+		++nassets;
 	}
 
 	product = Math.pow(product, 1 / nassets);
-	console.info(new Date(), product.toPrecision(6), dict);
+	console.info(new Date(), id, product);
 }
 
 function trade(pair)
@@ -231,8 +210,7 @@ function trade(pair)
 		if (error)
 			console.error(error.result);
 
-		pending = true;
-		listen();
+		exit();
 	}
 
 	ready = false;
@@ -338,17 +316,6 @@ function show()
 	state.removeClass();
 	state.data("time", date.getTime());
 	table.removeClass("hidden");
-}
-
-function request()
-{
-	if (!ready) {
-		pending = true;
-		return;
-	}
-
-	ready = false;
-	start();
 }
 
 function convert(amount)
@@ -667,19 +634,6 @@ function find(target)
 	socket.twin = twin;
 }
 
-function listen()
-{
-	var unit;
-
-	ready = true;
-
-	if (pending)
-		request();
-	else
-		for (unit in saldo)
-			find(unit);
-}
-
 function estimate(path)
 {
 	var date = new Date();
@@ -789,12 +743,13 @@ function slowdown()
 	stop(this);
 }
 
-function chkalive()
+function exit()
 {
-	if (alive)
-		alive = false;
-	else
-		process.exit();
+ if ($) {
+	location.reload();
+ } else {
+	process.exit();
+ }
 }
 
 function main()
@@ -808,7 +763,6 @@ function main()
 	table = $("table");
 	header = $("tr");
 	state = $("td");
-	state.click(request);
 
 	template.header = header.children("th").detach();
 	template.row = header.clone();
@@ -823,16 +777,13 @@ function main()
 
 		console.log("Initial balance unknown");
 	}
- } else {
-	console.info(id);
-	setInterval(request, 3e5);
-	setInterval(chkalive, 3e5);
  }
 
+	setInterval(exit, 3e5);
 	setInterval(tick, 1e3);
-	account.on("transaction", request);
-	remote.on("error", request);
-	remote.connect(listen);
+	account.on("transaction", exit);
+	remote.on("error", exit);
+	remote.connect(start);
 }
 
  if ($) {
