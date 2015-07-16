@@ -403,6 +403,8 @@ function show()
 	state.removeClass();
 	state.data("time", date.getTime());
 	table.removeClass("hidden");
+
+	piechart();
 	listen();
 }
 
@@ -524,8 +526,7 @@ function getstats(list)
 
 function main()
 {
-	var old = new Date(0);
-	var now = new Date();
+	$("h1").text(id);
 
 	table = $("table");
 	header = $("tr");
@@ -539,6 +540,12 @@ function main()
 	setInterval(tick, 1e3);
 	account.on("transaction", request);
 	remote.connect(listen);
+}
+
+function piechart()
+{
+	var old = new Date(0);
+	var now = new Date();
 
 	$.post("http://api.ripplecharts.com/api/account_offers_exercised", {
 		descending: true,
@@ -554,14 +561,18 @@ $(main);
 
 <body>
 <div class="container-fluid">
-<div class="chart page-header"></div>
+<div class="text-center"><h1></h1></div>
 
+<p><div class="chart"></div></p>
+
+<p>
 <table class="table table-bordered text-center hidden">
 <tr>
 <td></td>
 <th class="text-center">XRP</th>
 </tr>
 </table>
+</p>
 </div>
 </body>
 </html>
