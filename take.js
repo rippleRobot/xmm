@@ -26,6 +26,7 @@ var remote = new ripple.Remote(options);
 var account = remote.account(id);
 var fee = options.max_fee / 1e6;
 var pairs = {};
+var ws = {};
 var paths = {};
 var units = {};
 var template = {};
@@ -34,43 +35,12 @@ var ready = false;
 var stall = 1e4;
 var maxlag = 3e3;
 var mincount = 3;
-var ledger, saldo, ws, deposit, nassets;
+var ledger, saldo, deposit, nassets;
 var table, header, state;
-
-function stop(socket)
-{
-	var finder;
-
-	if (!socket)
-		return;
-
-	finder = socket.finder;
-	if (finder) {
-		finder.removeAllListeners("update");
-		try {
-			finder.close();
-		} catch (e) {
-		}
-		delete socket.finder;
-	}
-
-	socket.disconnect();
-	socket.zombie = true;
-}
 
 function start()
 {
 	var target;
-
-	for (target in ws) {
-		var socket = ws[target];
-
-		stop(socket.twin);
-		stop(socket);
-	}
-
-	ws = {};
-	paths = {};
 
  if ($) {
 	for (target in targets) {
@@ -460,9 +430,6 @@ function update(data)
 	var socket = this.remote;
 	var i, best;
 
-	if (socket.zombie)
-		return stop(socket);
-
 	socket.time = date.getTime();
 
 	for (i = 0; i < n; i++) {
@@ -559,7 +526,6 @@ function setup()
 		src_account: id
 	});
 
-	this.finder = finder;
 	finder.on("update", update);
 }
 
@@ -613,7 +579,7 @@ function find(target)
 
 	socket = new ripple.Remote(shuffle());
 	socket.dst = dst;
-	socket.on("error", slowdown);
+	socket.on("error", exit);
 	socket.connect(setup);
 	socket.time = date.getTime();
 	socket.stake = stake;
@@ -621,7 +587,7 @@ function find(target)
 
 	twin = new ripple.Remote(shuffle());
 	twin.dst = dst;
-	twin.on("error", slowdown);
+	twin.on("error", exit);
 	twin.connect(setup);
 	twin.time = date.getTime();
 	socket.twin = twin;
@@ -699,8 +665,6 @@ function watchdog()
 					paths[pair].count = 0;
 			}
 
-			stop(twin);
-			stop(socket);
 			delete ws[target];
 			find(target);
 			return;
@@ -729,11 +693,6 @@ function tick()
  if ($) {
 	display();
  }
-}
-
-function slowdown()
-{
-	stop(this);
 }
 
 function exit()
