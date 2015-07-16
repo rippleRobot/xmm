@@ -594,18 +594,11 @@ function shuffle()
 	return options;
 }
 
-function getstake()
-{
-	var rnd = Math.pow(Math.E / 2, 2 * Math.random() - 1);
-
-	return rnd * Math.sqrt(fee / saldo["XRP"]);
-}
-
 function find(target)
 {
 	var date = new Date();
 	var socket = ws[target];
-	var stake = getstake();
+	var stake = Math.sqrt(fee / saldo["XRP"]);
 	var dst, twin;
 
 	if (socket)
