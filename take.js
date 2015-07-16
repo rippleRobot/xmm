@@ -26,15 +26,16 @@ var remote = new ripple.Remote(options);
 var account = remote.account(id);
 var fee = options.max_fee / 1e6;
 var pairs = {};
-var ws = {};
+var nsockets = {};
+var updates = {};
 var paths = {};
 var units = {};
 var template = {};
 var targets = {};
 var ready = false;
-var stall = 1e4;
 var maxlag = 3e3;
-var mincount = 3;
+var mincount = 5;
+var maxws = 5;
 var ledger, saldo, deposit, nassets;
 var table, header, state;
 
@@ -430,7 +431,7 @@ function update(data)
 	var socket = this.remote;
 	var i, best;
 
-	socket.time = date.getTime();
+	updates[dst.currency] = date.getTime();
 
 	for (i = 0; i < n; i++) {
 		var path = alt[i];
@@ -563,27 +564,31 @@ function shuffle()
 function find(target)
 {
 	var date = new Date();
-	var socket = ws[target];
 	var stake = Math.sqrt(fee / saldo["XRP"]);
-	var dst;
+	var dst = mkamount(stake * saldo[target], target);
+	var socket = new ripple.Remote(shuffle());
+	var count = nsockets[target];
 
-	if (socket)
+	if (count)
+		++count;
+	else
+		count = 1;
+
+	if (maxws < count)
 		return;
 
-	dst = mkamount(stake * saldo[target], target);
+	socket.dst = dst;
+	socket.on("error", exit);
+	socket.connect(setup);
+	socket.stake = stake;
 
  if ($) {
 	targets[target].text(gethuman(dst, stake));
 	targets[target].addClass("active");
  }
 
-	socket = new ripple.Remote(shuffle());
-	socket.dst = dst;
-	socket.on("error", exit);
-	socket.connect(setup);
-	socket.time = date.getTime();
-	socket.stake = stake;
-	ws[target] = socket;
+	nsockets[target] = count;
+	updates[target] = date.getTime();
 }
 
 function estimate(path)
@@ -643,25 +648,9 @@ function watchdog()
 	if (!ready)
 		return;
 
-	for (target in ws) {
-		var socket = ws[target];
-		var time = socket.time;
-
-		if (stall < now - time) {
-			var pair;
-
-			for (pair in paths) {
-				var dst = pair.split(">").pop();
-
-				if (dst == target)
-					paths[pair].count = 0;
-			}
-
-			delete ws[target];
+	for (target in updates)
+		if (maxlag < now - updates[target])
 			find(target);
-			return;
-		}
-	}
 }
 
 function tick()
