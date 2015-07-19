@@ -37,7 +37,7 @@ var ready = false;
 var maxlag = 3e3;
 var mincount = 3;
 var maxws = 5;
-var ledger, saldo, oldsaldo, deposit, nassets;
+var ledger, saldo, oldsaldo, deposit;
 var table, header, state;
 
 function start()
@@ -163,12 +163,11 @@ function getsaldo(index, cb)
 function getgm(dict)
 {
 	var product = 1;
+	var nassets = 0;
 	var unit;
 
-	nassets = 0;
-
-	for (unit in saldo) {
-		product *= saldo[unit];
+	for (unit in dict) {
+		product *= dict[unit];
 		++nassets;
 	}
 
@@ -183,7 +182,7 @@ function showgm()
 	var last = getgm(saldo);
 	var addr = id.replace(/^(....).*$/, "$1...");
 	var total = last / init - 1;
-	var step = last / init - 1;
+	var step = last / prev - 1;
 
 	date = date.toString();
 	total *= 100;
@@ -405,7 +404,8 @@ function judge(pair)
 	var path = paths[pair];
 	var offer = path.offer;
 	var ema = path.ema;
-	var src, dst, base, counter, v0, v1, drop, profit;
+	var nassets = 0;
+	var src, dst, base, counter, v0, v1, drop, profit, unit;
 
 	if (!offer)
 		return 0;
@@ -417,6 +417,9 @@ function judge(pair)
 	base = saldo[base];
 	counter = pair.shift();
 	counter = saldo[counter];
+
+	for (unit in saldo)
+		++nassets;
 
 	v0 = base * counter;
 	v1 = (base - src) * (counter + dst);
