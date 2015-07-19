@@ -155,7 +155,7 @@ function getsaldo(index, cb)
 	}, setxrp);
 }
 
-function showgm()
+function getgm(dict)
 {
 	var product = 1;
 	var unit;
@@ -167,8 +167,23 @@ function showgm()
 		++nassets;
 	}
 
-	product = Math.pow(product, 1 / nassets);
-	console.info(new Date(), id, product);
+	return Math.pow(product, 1 / nassets);
+}
+
+function showgm()
+{
+	var date = new Date();
+	var init = getgm(deposit);
+	var prev = getgm(oldsaldo);
+	var last = getgm(saldo);
+	var addr = id.replace(/^(....).*$/, "$1...");
+	var total = last / init - 1;
+	var step = last / init - 1;
+
+	date = date.toString();
+	total = total.toFixed(2) + "%";
+	step = step.toFixed(3) + "bp";
+	console.info(date, addr, total, step);
 }
 
 function trade(pair)
@@ -373,7 +388,7 @@ function display()
 			cell.addClass("danger");
 
 		profit *= 1e4;
-		profit = profit.toFixed(1) + "\u2031";
+		profit = profit.toFixed(3) + "\u2031";
 		cell.text(human + ", " + profit);
 	}
 }
