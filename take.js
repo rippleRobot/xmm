@@ -496,7 +496,7 @@ function update(data)
 
 		if (ready) {
 			date = date.toString();
-			console.info(date, abbrpair(best), rank);
+			console.info(date, rank, abbrpair(best));
 
 			if (key)
 				trade(best);
