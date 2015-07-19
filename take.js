@@ -314,16 +314,6 @@ function convert(amount)
 	return dict;
 }
 
-function gethuman(json, stake)
-{
-	var amount = convert(json);
-	var currency = abbr(amount.currency);
-
-	stake *= 100;
-	stake = stake.toFixed(3) + "%";
-	return stake + " " + currency;
-}
-
 function getprice(src, dst)
 {
 	var base = src.currency;
@@ -581,11 +571,6 @@ function find(target)
 	socket.on("error", exit);
 	socket.connect(setup);
 	socket.stake = stake;
-
- if ($) {
-	targets[target].text(gethuman(dst, stake));
-	targets[target].addClass("active");
- }
 
 	nsockets[target] = count;
 	updates[target] = date.getTime();
