@@ -5,6 +5,7 @@ var id = location.search.replace("?", "");
 var key = localStorage[id];
  } else {
 var ripple = require("ripple-lib");
+var fs = require("fs");
 
 var env = process.env;
 var id = process.argv[2];
@@ -99,6 +100,10 @@ function setsaldo(dict)
 		last: saldo
 	});
  } else {
+	fs.writeFileSync(id + ".json", JSON.stringify({
+		init: deposit,
+		last: saldo
+	}));
  }
 
 	ready = true;
@@ -717,6 +722,17 @@ function main()
 
 	try {
 		var json = localStorage[location.href];
+
+		json = JSON.parse(json);
+		deposit = json.init;
+		oldsaldo = json.last;
+	} catch (e) {
+		deposit = undefined;
+		oldsaldo = undefined;
+	}
+ } else {
+	try {
+		var json = fs.readFileSync(id + ".json");
 
 		json = JSON.parse(json);
 		deposit = json.init;
