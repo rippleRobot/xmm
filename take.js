@@ -186,7 +186,9 @@ function showgm()
 	var step = last / init - 1;
 
 	date = date.toString();
+	total *= 100;
 	total = total.toFixed(2) + "%";
+	step *= 1e4;
 	step = step.toFixed(3) + "bp";
 	console.info(date, addr, total, step);
 }
@@ -490,6 +492,7 @@ function update(data)
 		rank = rank.toFixed(3) + "bp";
 
 		if (ready) {
+			date = date.toString();
 			console.info(date, abbrpair(best), rank);
 
 			if (key)
