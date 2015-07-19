@@ -34,7 +34,7 @@ var template = {};
 var targets = {};
 var ready = false;
 var maxlag = 3e3;
-var mincount = 5;
+var mincount = 3;
 var maxws = 5;
 var ledger, saldo, deposit, nassets;
 var table, header, state;
@@ -422,6 +422,7 @@ function update(data)
 	var i, best;
 
 	updates[dst.currency] = date.getTime();
+	++socket.count;
 
 	for (i = 0; i < n; i++) {
 		var path = alt[i];
@@ -439,7 +440,7 @@ function update(data)
 		paths[pair] = {
 			stake: dst.value / saldo[dst.currency],
 			socket: socket,
-			count: prev ? prev.count + 1 : 1,
+			count: socket.count,
 			alt: path.paths_computed,
 			human: getprice(src, dst),
 			price: dst.value / src.value,
@@ -578,6 +579,7 @@ function find(target)
 	socket.on("error", exit);
 	socket.connect(setup);
 	socket.stake = stake;
+	socket.count = 0;
 
 	nsockets[target] = count;
 	updates[target] = date.getTime();
