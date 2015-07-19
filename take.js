@@ -36,7 +36,7 @@ var ready = false;
 var maxlag = 3e3;
 var mincount = 3;
 var maxws = 5;
-var ledger, saldo, deposit, nassets;
+var ledger, saldo, oldsaldo, deposit, nassets;
 var table, header, state;
 
 function start()
@@ -82,18 +82,23 @@ function setsaldo(dict)
 		return start();
 
 	saldo = dict;
+
+	if (!deposit)
+		deposit = saldo;
+
+	if (!oldsaldo)
+		oldsaldo = saldo;
+
 	showgm();
 
  if ($) {
-	if (!deposit) {
-		var json = JSON.stringify(saldo);
-
-		localStorage[location.href] = json;
-
-		deposit = saldo;
-	}
-
 	show();
+
+	localStorage[location.href] = JSON.stringify({
+		init: deposit,
+		last: saldo
+	});
+ } else {
  }
 
 	ready = true;
@@ -698,11 +703,12 @@ function main()
 	try {
 		var json = localStorage[location.href];
 
-		deposit = JSON.parse(json);
+		json = JSON.parse(json);
+		deposit = json.init;
+		oldsaldo = json.last;
 	} catch (e) {
 		deposit = undefined;
-
-		console.log("Initial balance unknown");
+		oldsaldo = undefined;
 	}
  }
 
