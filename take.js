@@ -551,10 +551,17 @@ function shuffle()
 	return options;
 }
 
+function getstake()
+{
+	var rnd = Math.pow(Math.E / 2, 2 * Math.random() - 1);
+
+	return rnd * Math.sqrt(fee / saldo["XRP"]);
+}
+
 function find(target)
 {
 	var date = new Date();
-	var stake = Math.sqrt(fee / saldo["XRP"]);
+	var stake = getstake();
 	var dst = mkamount(stake * saldo[target], target);
 	var socket = new ripple.Remote(shuffle());
 	var count = nsockets[target];
