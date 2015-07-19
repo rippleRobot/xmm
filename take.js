@@ -169,7 +169,7 @@ function showgm()
 function trade(pair)
 {
 	var path = paths[pair];
-	var tx = remote.transaction();
+	var tx = path.socket.transaction();
 
 	tx.payment(id, id, path.amount);
 	tx.paths(path.alt);
