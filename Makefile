@@ -5,7 +5,7 @@ all: xmm.js $(RIPPLE_LIB) stop
 		cat full.log >>archive.log; \
 	fi
 	nohup node xmm.js >full.log 2>&1 & echo $$! >daemon.pid
-	sleep 1
+	sleep 5
 
 $(RIPPLE_LIB):
 	npm install ripple-lib@0.10.0
@@ -15,7 +15,7 @@ stop:
 		kill "`cat daemon.pid`"; \
 		rm -f daemon.pid; \
 	fi
-	sleep 1
+	sleep 5
 
 clean: stop
 	-rm -i *.log history.json
