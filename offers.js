@@ -62,6 +62,12 @@ function isfiat(currency)
 		return true;
 	else if ("EUR" == currency)
 		return true;
+	else if ("CNY" == currency)
+		return true;
+	else if ("JPY" == currency)
+		return true;
+	else if ("KRW" == currency)
+		return true;
 	else
 		return false;
 }
