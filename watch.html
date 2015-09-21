@@ -16,14 +16,9 @@ table {
 .update {
 	text-shadow: 0px 0px 1px;
 }
-
-.chart {
-	height: 240px;
-}
 </style>
 
 <script src="http://code.jquery.com/jquery.js"></script>
-<script src="http://code.highcharts.com/highcharts.js"></script>
 <script src="node_modules/ripple-lib/build/ripple-0.10.0-min.js"></script>
 
 <script>
@@ -410,7 +405,6 @@ function show()
 	state.data("time", date.getTime());
 	table.removeClass("hidden");
 
-	piechart();
 	listen();
 }
 
@@ -449,87 +443,6 @@ function tick()
 	}
 }
 
-function currency(dict, type)
-{
-	var unit = dict[type + "Currency"];
-	var issuer = dict[type + "Issuer"];
-
-	if (issuer)
-		unit += ":" + issuer;
-
-	return unit.replace(/^(...:....).*$/, "$1\u2026");
-}
-
-function getstats(list)
-{
-	var fields = list.shift();
-	var nfields = fields.length;
-	var n = list.length;
-	var stats = {};
-	var data = [];
-	var format = "{point.name}: {point.percentage:.1f}%";
-	var i, j, pair;
-
-	for (i = 0; i < n; i++) {
-		var entry = list[i];
-		var dict = {};
-
-		for (j = 0; j < nfields; j++) {
-			var name = fields[j];
-
-			dict[name] = entry[j];
-		}
-
-		list[i] = dict;
-
-		pair = [
-			currency(dict, "base"),
-			currency(dict, "counter")
-		].sort().join("/");
-
-		if (stats[pair])
-			++stats[pair];
-		else
-			stats[pair] = 1;
-	}
-
-	for (pair in stats) {
-		var part = 100 * stats[pair] / n;
-		var entry = [
-			pair,
-			part
-		];
-
-		if (1 < part)
-			data.push(entry);
-	}
-
-	$("div.chart").highcharts({
-		title: null,
-		tooltip: {
-			enabled: false
-		},
-		plotOptions: {
-			pie: {
-				startAngle: 90,
-				allowPointSelect: true,
-				dataLabels: {
-					format: format,
-					style: {
-						fontWeight: "bold"
-					}
-				},
-				innerSize: "50%",
-				size: "100%"
-			}
-		},
-		series: [{
-			type: "pie",
-			data: data
-		}]
-	});
-}
-
 function main()
 {
 	$("h1").text(id);
@@ -548,19 +461,6 @@ function main()
 	remote.connect(listen);
 }
 
-function piechart()
-{
-	var old = new Date(0);
-	var now = new Date();
-
-	$.post("http://api.ripplecharts.com/api/account_offers_exercised", {
-		descending: true,
-		startTime: old.toISOString(),
-		endTime: now.toISOString(),
-		account: id
-	}, getstats);
-}
-
 $(main);
 </script>
 </head>
@@ -568,8 +468,6 @@ $(main);
 <body>
 <div class="container-fluid">
 <div class="text-center"><h1></h1></div>
-
-<p><div class="chart"></div></p>
 
 <p>
 <table class="table table-bordered text-center hidden">
