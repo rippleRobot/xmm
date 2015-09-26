@@ -68,6 +68,8 @@ function isfiat(currency)
 		return true;
 	else if ("KRW" == currency)
 		return true;
+	else if ("FMM" == currency)
+		return true;
 	else
 		return false;
 }
