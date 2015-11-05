@@ -7,8 +7,7 @@ var host = env.XMM_HOST;
 var servers = [
 	"wss://s-west.ripple.com:443",
 	"wss://s-east.ripple.com:443",
-	"wss://s1.ripple.com:443",
-	"wss://ripple.gatehub.net:443"
+	"wss://s1.ripple.com:443"
 ];
 var options = {
 	max_fee: 30000,
