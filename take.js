@@ -13,7 +13,7 @@ var key = env[id];
  }
 
 var options = {
-	max_fee: 200000,
+	max_fee: 300000,
 	fee_cushion: 2,
 	servers: [
 		"wss://s-west.ripple.com:443",
@@ -422,7 +422,7 @@ function judge(pair)
 
 	v0 = base * counter;
 	v1 = (base - src) * (counter + dst);
-	drop = fee / saldo["XRP"];
+	drop = 2 * fee / saldo["XRP"];
 	profit = (v1 / v0 - drop - 1) / nassets;
 
 	if (ema)
@@ -586,7 +586,7 @@ function getstake()
 {
 	var rnd = Math.pow(Math.E / 2, 2 * Math.random() - 1);
 
-	return rnd * Math.sqrt(fee / saldo["XRP"]);
+	return rnd * Math.sqrt(2 * fee / saldo["XRP"]);
 }
 
 function find(target)
