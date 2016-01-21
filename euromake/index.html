@@ -1,0 +1,344 @@
+<!doctype html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Statistics</title>
+
+<link href="http://maxcdn.bootstrapcdn.com/bootstrap/latest/css/bootstrap.css"
+	rel="stylesheet">
+
+<style>
+.chart {
+	height: 480px;
+}
+</style>
+
+<script src="http://code.jquery.com/jquery.js"></script>
+<script src="http://code.highcharts.com/stock/highstock.js"></script>
+
+<script>
+var assets = {};
+var series = [];
+var table, template, log, from, key, fresh;
+
+function interest(entry)
+{
+	var src = log[0];
+	var dst = log[entry];
+	var year = 60 * 24 * 365.25;
+	var ratio, period;
+
+	if (!entry)
+		return 0;
+
+	ratio = dst.value / src.value;
+	period = dst.time - src.time;
+	return Math.pow(ratio, year / period) - 1;
+}
+
+function growth(src, dst)
+{
+	var nassets = 0;
+	var k = 1;
+	var p0 = src.prices;
+	var p1 = dst.prices;
+	var unit;
+
+	for (unit in p1) {
+		var prev = p0[unit];
+		var last = p1[unit];
+
+		if (prev)
+			k *= last / prev;
+
+		++nassets;
+	}
+
+	return Math.pow(k, 1 / nassets);
+}
+
+function addrow(entry, update)
+{
+	var row = template.clone();
+	var children = row.children();
+
+	function fill()
+	{
+		var field = $(this).attr("headers");
+		var datum = entry[field];
+
+		if (datum)
+			$(this).text(datum);
+	}
+
+	children.each(fill);
+	table.prepend(row);
+
+	if (update)
+		fresh = fresh.add(row);
+}
+
+function addasset(unit)
+{
+	var i = assets[unit];
+
+	if (i)
+		return i;
+
+	i = series.length;
+
+	series.push({
+		yAxis: 0,
+		name: unit,
+		type: "spline",
+		marker: {
+			enabled: true,
+			radius: 3
+		},
+		tooltip: {
+			valueDecimals: 3
+		},
+		data: []
+	});
+
+	assets[unit] = i;
+	return i;
+}
+
+function addpoint(time, entry)
+{
+	var dict = entry.prices;
+	var unit;
+
+	series[0].data.push([time, entry.growth]);
+
+	for (unit in dict) {
+		var price = dict[unit];
+		var i = addasset(unit);
+
+		series[i].data.push([time, 1 / price]);
+	}
+}
+
+function load(data)
+{
+	var chart = $("div.chart");
+	var date = new Date();
+	var timezone = date.getTimezoneOffset();
+	var time = from;
+	var i;
+
+	log = data;
+
+	series.push({
+		yAxis: 1,
+		name: $("th#growth").text(),
+		type: "column",
+		tooltip: {
+			valueDecimals: 2,
+			valueSuffix: "\u2031"
+		},
+		data: []
+	});
+
+	if (log.length)
+		log[0].value = 100;
+
+	for (i = 0; i < log.length; i++) {
+		var prev = log[i ? i - 1 : i];
+		var last = log[i];
+		var gain = growth(prev, last);
+
+		time = last.time;
+
+		last.value = prev.value * gain;
+		last.date = new Date(last.time);
+		last.time /= 6e4;
+		last.interest = 100 * interest(i);
+		last.since = last.time - prev.time;
+		last.growth = 1e4 * (gain - 1);
+
+		addpoint(time, last);
+
+		addrow({
+			seq: last.seq.toFixed(0),
+			iou: last.iou.toFixed(3),
+			growth: last.growth.toFixed(2) + "\u2031",
+			since: last.since.toFixed(0) + " min",
+			value: last.value.toFixed(2) + "%",
+			date: last.date.toLocaleDateString(),
+			time: last.date.toLocaleTimeString(),
+			interest: last.interest.toFixed(2) + "%"
+		}, from < time);
+	}
+
+	localStorage[key] = time.toFixed(0);
+	fresh.addClass("info");
+
+	Highcharts.setOptions({
+		global: {
+			timezoneOffset: timezone
+		}
+	});
+	chart.highcharts("StockChart", {
+		colors: [
+			"maroon",
+			"red",
+			"gold",
+			"lime",
+			"blue",
+			"fuchsia",
+			"turquoise",
+			"gray",
+			"crimson"
+		],
+		tooltip: {
+			animation: false,
+			hideDelay: 0
+		},
+		plotOptions: {
+			series: {
+				dataGrouping: {
+					smoothed: true,
+					forced: true
+				}
+			},
+			spline: {
+				compare: "percent"
+			},
+			column: {
+				color: "tan"
+			}
+		},
+		xAxis: {
+			labels: {
+				style: {
+					fontWeight: "bold"
+				}
+			},
+			ordinal: false
+		},
+		chart: {
+			spacingTop: 0,
+			spacingRight: 1,
+			spacingLeft: 1,
+			zoomType: "x",
+			animation: false
+		},
+		yAxis: [{
+			labels: {
+				style: {
+					fontWeight: "bold"
+				},
+				format: "{value}%",
+				align: "right",
+				x: -2
+			},
+			reversed: true,
+			showFirstLabel: false,
+			showLastLabel: true,
+			minorTickInterval: "auto"
+		}, {
+			labels: {
+				format: "{value}\u2031",
+				style: {
+					fontWeight: "bold"
+				},
+				align: "left",
+				x: 2
+			},
+			opposite: false,
+			gridLineWidth: 0,
+			offset: 0
+		}],
+		rangeSelector: {
+			inputEnabled: false,
+			buttons: [{
+				type: "hour",
+				count: 3,
+				text: "3h"
+			}, {
+				type: "hour",
+				count: 8,
+				text: "8h"
+			}, {
+				type: "day",
+				count: 1,
+				text: "1d"
+			}, {
+				type: "day",
+				count: 3,
+				text: "3d"
+			}, {
+				type: "week",
+				count: 1,
+				text: "1w"
+			}, {
+				type: "all",
+				text: "All"
+			}]
+		},
+		navigator: {
+			enabled: false
+		},
+		series: series
+	});
+}
+
+function main()
+{
+	table = $("tbody");
+	fresh = $("tr.template");
+	template = fresh.detach();
+	template.removeClass("template");
+
+	key = location.href;
+
+	from = parseInt(localStorage[key]);
+	if (!from)
+		from = 0;
+
+	$.getJSON("history.json", load);
+}
+
+$(main);
+</script>
+</head>
+
+<body>
+<div class="container-fluid">
+<h1><div class="chart"></div></h1>
+
+<p>
+<table class="table table-striped table-bordered text-right">
+<thead>
+<tr>
+<th id="seq">Sequence</th>
+<th id="iou">Shares</th>
+<th id="date">Date</th>
+<th id="time">Time</th>
+<th id="since">Passed</th>
+<th id="growth">Growth</th>
+<th id="value">Value</th>
+<th id="interest">Annual</th>
+</tr>
+</thead>
+
+<tbody>
+<tr class="template">
+<td headers="seq"></td>
+<td headers="iou"></td>
+<td headers="date"></td>
+<td headers="time"></td>
+<td headers="since"></td>
+<td headers="growth"></td>
+<td headers="value"></td>
+<td headers="interest"></td>
+</tr>
+</tbody>
+</table>
+</p>
+</div>
+</body>
+</html>
