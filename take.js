@@ -13,7 +13,7 @@ var key = env[id];
  }
 
 var options = {
-	max_fee: 20000,
+	max_fee: 50000,
 	fee_cushion: 2,
 	servers: [
 		"wss://s-west.ripple.com:443",
